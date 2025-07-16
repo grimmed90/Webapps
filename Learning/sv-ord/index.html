@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ord-Tränaren</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation; /* Förhindrar zoom vid dubbeltryck på mobilen */
+        }
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .answer-btn {
+            transition: all 0.2s ease-in-out;
+            min-height: 4rem; /* Säkerställer att knappar har en bra höjd */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem;
+        }
+        .answer-btn:active {
+            transform: scale(0.96);
+        }
+        .answer-btn.correct {
+            background-color: #22c55e !important; /* green-500 */
+            color: white;
+            border-color: #16a34a; /* green-600 */
+        }
+        .answer-btn.incorrect {
+            background-color: #ef4444 !important; /* red-500 */
+            color: white;
+            border-color: #dc2626; /* red-600 */
+        }
+        .answer-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-8">
+
+        <div id="start-view" class="view active text-center space-y-6">
+            <header>
+                <h1 class="text-4xl font-extrabold text-slate-800">Ord-Tränaren 🧠</h1>
+                <p class="text-slate-500 mt-2">Bemästra svåra svenska ord från högskoleprovet.</p>
+            </header>
+            <div class="flex justify-center">
+                 <button id="start-button" class="w-full max-w-xs bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-transform active:scale-95">
+                    Starta Omgång (10 ord)
+                </button>
+            </div>
+        </div>
+
+        <div id="game-view" class="view space-y-4">
+            <div class="flex justify-between items-center mb-2">
+                <div class="text-slate-600 font-medium">Poäng: <span id="score" class="font-bold text-slate-800 text-lg">0</span></div>
+                <div id="question-counter" class="text-slate-600 font-medium">Fråga 1 / 10</div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-linear"></div>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-6 text-center space-y-5">
+                <p class="text-slate-600 font-medium">Vad betyder ordet:</p>
+                <div id="word-display" class="text-3xl md:text-4xl font-bold text-blue-700 capitalize"></div>
+            </div>
+            <div id="answer-options" class="grid grid-cols-1 gap-3">
+                </div>
+            <div id="feedback-message" class="h-6 text-lg text-center font-medium mt-2"></div>
+        </div>
+
+        <div id="summary-view" class="view text-center space-y-6">
+            <header>
+                <h1 id="summary-title" class="text-3xl font-bold text-slate-800">Omgången är klar!</h1>
+            </header>
+            <div class="bg-blue-50 rounded-xl p-6 space-y-2">
+                <p class="text-lg text-slate-600">Ditt resultat:</p>
+                <p id="summary-score" class="text-5xl font-extrabold text-blue-600"></p>
+                <p id="summary-message" class="text-slate-700 pt-2"></p>
+            </div>
+            <button id="play-again-button" class="w-full max-w-xs bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-transform active:scale-95">
+                Spela Igen
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Ordlista (Exempelord från Högskoleprovet) ---
+        const words = [
+            { word: 'Burlesk', definition: 'groteskt komisk, överdrivet lustig' },
+            { word: 'Implicit', definition: 'underförstådd, ej uttalad' },
+            { word: 'Anomali', definition: 'avvikelse från det normala' },
+            { word: 'Deduktion', definition: 'härledning av slutsats från en allmän princip' },
+            { word: 'Facil', definition: 'lättsam, billig, rimlig' },
+            { word: 'Flegmatisk', definition: 'trög, likgiltig, sävlig' },
+            { word: 'Genväga', definition: 'ta en kortare väg' },
+            { word: 'Hegemoni', definition: 'ledande ställning, övervälde' },
+            { word: 'Kardinalfel', definition: 'ett huvudfel, ett grundläggande misstag' },
+            { word: 'Lakoniskt', definition: 'kortfattat, kärnfullt' },
+            { word: 'Modest', definition: 'anspråkslös, blygsam' },
+            { word: 'Oportun', definition: 'olämplig, oläglig' },
+            { word: 'Paradox', definition: 'en skenbar motsägelse' },
+            { word: 'Rudimentär', definition: 'outvecklad, grundläggande' },
+            { word: 'Stagnation', definition: 'avstannande, stillastående' },
+            { word: 'Trivial', definition: 'alldaglig, vanlig, obetydlig' },
+            { word: 'Veritabel', definition: 'verklig, äkta, sann' },
+            { word: 'Ambivalent', definition: 'kluven, vacklande' },
+            { word: 'Cynisk', definition: 'känslokall, hånfull' },
+            { word: 'Empirisk', definition: 'grundad på erfarenhet eller observation' },
+            { word: 'Filantrop', definition: 'människovän, välgörare' },
+            { word: 'Korpulent', definition: 'kraftigt byggd, fetlagd' },
+            { word: 'Prekär', definition: 'besvärlig, bekymmersam' },
+            { word: 'Profan', definition: 'världslig, ohelig' },
+            { word: 'Sekventiell', definition: 'som kommer i följd, i tur och ordning' }
+        ];
+
+        // --- DOM Elements ---
+        const views = {
+            start: document.getElementById('start-view'),
+            game: document.getElementById('game-view'),
+            summary: document.getElementById('summary-view'),
+        };
+        const startButton = document.getElementById('start-button');
+        const playAgainButton = document.getElementById('play-again-button');
+        const scoreDisplay = document.getElementById('score');
+        const questionCounter = document.getElementById('question-counter');
+        const progressBar = document.getElementById('progress-bar');
+        const wordDisplay = document.getElementById('word-display');
+        const answerOptionsContainer = document.getElementById('answer-options');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const summaryScore = document.getElementById('summary-score');
+        const summaryMessage = document.getElementById('summary-message');
+        const summaryTitle = document.getElementById('summary-title');
+
+        // --- Game State ---
+        const QUESTIONS_IN_ROUND = 10;
+        let score = 0;
+        let currentQuestionIndex = 0;
+        let currentWordList = [];
+        let correctAnswer = '';
+
+        // --- Functions ---
+        function switchView(viewName) {
+            Object.values(views).forEach(view => view.classList.remove('active'));
+            views[viewName].classList.add('active');
+        }
+        
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startRound() {
+            score = 0;
+            currentQuestionIndex = 0;
+            currentWordList = shuffleArray(words).slice(0, QUESTIONS_IN_ROUND);
+            scoreDisplay.textContent = '0';
+            switchView('game');
+            displayNextQuestion();
+        }
+
+        function displayNextQuestion() {
+            if (currentQuestionIndex >= QUESTIONS_IN_ROUND) {
+                endRound();
+                return;
+            }
+
+            // Reset feedback
+            feedbackMessage.textContent = '';
+            answerOptionsContainer.innerHTML = '';
+
+            // Update counters and progress bar
+            currentQuestionIndex++;
+            scoreDisplay.textContent = score;
+            questionCounter.textContent = `Fråga ${currentQuestionIndex} / ${QUESTIONS_IN_ROUND}`;
+            progressBar.style.width = `${((currentQuestionIndex - 1) / QUESTIONS_IN_ROUND) * 100}%`;
+            
+            // Get current question
+            const currentQuestion = currentWordList[currentQuestionIndex - 1];
+            wordDisplay.textContent = currentQuestion.word;
+            correctAnswer = currentQuestion.definition;
+
+            // Generate answer options (1 correct, 3 incorrect)
+            const options = new Set([correctAnswer]);
+            while (options.size < 4) {
+                const randomWord = words[Math.floor(Math.random() * words.length)];
+                if (randomWord.definition !== correctAnswer) {
+                    options.add(randomWord.definition);
+                }
+            }
+
+            // Display options on buttons
+            const shuffledOptions = shuffleArray(Array.from(options));
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'answer-btn w-full bg-slate-100 text-slate-800 font-medium text-left rounded-lg hover:bg-slate-200 focus:outline-none focus:ring-4 focus:ring-blue-300';
+                button.addEventListener('click', checkAnswer);
+                answerOptionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(event) {
+            const selectedAnswer = event.target.textContent;
+            
+            // Disable all buttons after selection
+            Array.from(answerOptionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                // Highlight the correct answer regardless of user choice
+                if (btn.textContent === correctAnswer) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (selectedAnswer === correctAnswer) {
+                score++;
+                feedbackMessage.textContent = 'Rätt svar! ✨';
+                feedbackMessage.className = 'h-6 text-lg text-center font-medium text-green-600';
+            } else {
+                event.target.classList.add('incorrect');
+                feedbackMessage.textContent = 'Fel svar.';
+                feedbackMessage.className = 'h-6 text-lg text-center font-medium text-red-600';
+            }
+            
+            scoreDisplay.textContent = score; // Update score immediately
+
+            // Wait 2 seconds before showing the next question
+            setTimeout(displayNextQuestion, 2000);
+        }
+
+        function endRound() {
+            progressBar.style.width = '100%';
+            summaryScore.textContent = `${score} / ${QUESTIONS_IN_ROUND}`;
+            
+            if (score === QUESTIONS_IN_ROUND) {
+                summaryTitle.textContent = "Fullpott! 🎉";
+                summaryMessage.textContent = "Imponerande! Du är en sann ordmästare.";
+            } else if (score >= 7) {
+                summaryTitle.textContent = "Mycket bra jobbat! 👍";
+                summaryMessage.textContent = "Du har utmärkt koll på svåra ord.";
+            } else if (score >= 4) {
+                summaryTitle.textContent = "Bra försök! 💪";
+                summaryMessage.textContent = "Fortsätt öva så sitter de snart perfekt.";
+            } else {
+                summaryTitle.textContent = "Fortsätt kämpa!";
+                summaryMessage.textContent = "Varje omgång är ett steg framåt. Ge inte upp!";
+            }
+            
+            switchView('summary');
+        }
+
+        function init() {
+            startButton.addEventListener('click', startRound);
+            playAgainButton.addEventListener('click', startRound);
+        }
+
+        init();
+    </script>
+</body>
+</html>

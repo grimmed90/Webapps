@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ord-Tränaren</title>
+    <title>Ord-Tränaren HP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,33 +101,311 @@
     </div>
 
     <script>
-        // --- Ordlista (Exempelord från Högskoleprovet) ---
+        // --- STOR ORDLISTA (HP-ORD) ---
         const words = [
-            { word: 'Burlesk', definition: 'groteskt komisk, överdrivet lustig' },
-            { word: 'Implicit', definition: 'underförstådd, ej uttalad' },
-            { word: 'Anomali', definition: 'avvikelse från det normala' },
-            { word: 'Deduktion', definition: 'härledning av slutsats från en allmän princip' },
-            { word: 'Facil', definition: 'lättsam, billig, rimlig' },
-            { word: 'Flegmatisk', definition: 'trög, likgiltig, sävlig' },
-            { word: 'Genväga', definition: 'ta en kortare väg' },
-            { word: 'Hegemoni', definition: 'ledande ställning, övervälde' },
-            { word: 'Kardinalfel', definition: 'ett huvudfel, ett grundläggande misstag' },
-            { word: 'Lakoniskt', definition: 'kortfattat, kärnfullt' },
-            { word: 'Modest', definition: 'anspråkslös, blygsam' },
-            { word: 'Oportun', definition: 'olämplig, oläglig' },
-            { word: 'Paradox', definition: 'en skenbar motsägelse' },
-            { word: 'Rudimentär', definition: 'outvecklad, grundläggande' },
-            { word: 'Stagnation', definition: 'avstannande, stillastående' },
-            { word: 'Trivial', definition: 'alldaglig, vanlig, obetydlig' },
-            { word: 'Veritabel', definition: 'verklig, äkta, sann' },
+            { word: 'Abstrakt', definition: 'tänkt, ogripbar' },
+            { word: 'Absurd', definition: 'orimlig, meningslös' },
+            { word: 'Adekvat', definition: 'lämplig, passande' },
+            { word: 'Affektion', definition: 'tillgivenhet, värme' },
+            { word: 'Aggregera', definition: 'sammanfoga, samla' },
+            { word: 'Alienera', definition: 'göra främmande' },
+            { word: 'Alludera', definition: 'anspela på, syfta på' },
+            { word: 'Alter ego', definition: 'en andra personlighet' },
+            { word: 'Altruism', definition: 'osjälviskhet' },
             { word: 'Ambivalent', definition: 'kluven, vacklande' },
+            { word: 'Ambitiös', definition: 'framåtsträvande, målmedveten' },
+            { word: 'Analogi', definition: 'motsvarighet, liknelse' },
+            { word: 'Anarki', definition: 'laglöshet' },
+            { word: 'Anomali', definition: 'avvikelse från det normala' },
+            { word: 'Anseende', definition: 'rykte, prestige' },
+            { word: 'Antagonism', definition: 'motsättning, fiendskap' },
+            { word: 'Apati', definition: 'likgiltighet, håglöshet' },
+            { word: 'Arbiträr', definition: 'godtycklig, slumpmässig' },
+            { word: 'Artefakt', definition: 'konstgjort föremål' },
+            { word: 'Asket', definition: 'person som avstår njutningar' },
+            { word: 'Assimilation', definition: 'anpassning, införlivande' },
+            { word: 'Association', definition: 'tankeförbindelse' },
+            { word: 'Auktoritär', definition: 'maktfullkomlig' },
+            { word: 'Autentisk', definition: 'äkta, genuin' },
+            { word: 'Autonom', definition: 'självständig' },
+            { word: 'Avantgarde', definition: 'nyskapande föregångare' },
+            { word: 'Aversion', definition: 'motvilja, avsky' },
+            { word: 'Banal', definition: 'alldaglig, platt' },
+            { word: 'Benefik', definition: 'välgörande, gynnsam' },
+            { word: 'Biennal', definition: 'evenemang vartannat år' },
+            { word: 'Bilateral', definition: 'ömsesidig, tvåsidig' },
+            { word: 'Biografi', definition: 'levnadsbeskrivning' },
+            { word: 'Burlesk', definition: 'groteskt komisk, överdrivet lustig' },
+            { word: 'Celebrera', definition: 'fira, hylla' },
+            { word: 'Censur', definition: 'förhandsgranskning' },
+            { word: 'Cirkulär', definition: 'rundgående' },
+            { word: 'Credo', definition: 'trosbekännelse' },
             { word: 'Cynisk', definition: 'känslokall, hånfull' },
-            { word: 'Empirisk', definition: 'grundad på erfarenhet eller observation' },
+            { word: 'Deduktion', definition: 'härledning av slutsats från en allmän princip' },
+            { word: 'Definiera', definition: 'bestämma, avgränsa' },
+            { word: 'Degradering', definition: 'nedflyttning till lägre grad' },
+            { word: 'Dekadens', definition: 'moraliskt förfall' },
+            { word: 'Demagog', definition: 'folkuppviglare' },
+            { word: 'Demografi', definition: 'befolkningslära' },
+            { word: 'Demonstrativ', definition: 'utmanande, tydligt visande' },
+            { word: 'Depression', definition: 'nedstämdhet; lågkonjunktur' },
+            { word: 'Destruktiv', definition: 'förstörande' },
+            { word: 'Devis', definition: 'valspråk, motto' },
+            { word: 'Didaktik', definition: 'undervisningslära' },
+            { word: 'Diffus', definition: 'oklar, luddig' },
+            { word: 'Dilemma', definition: 'svårt val' },
+            { word: 'Dimension', definition: 'utsträckning, storhet' },
+            { word: 'Diskrepans', definition: 'skillnad, avvikelse' },
+            { word: 'Distinkt', definition: 'tydlig, skarp' },
+            { word: 'Divergera', definition: 'gå isär, avvika' },
+            { word: 'Dogm', definition: 'lärosats' },
+            { word: 'Doktrin', definition: 'lära, åskådning' },
+            { word: 'Domän', definition: 'område, fält' },
+            { word: 'Drastisk', definition: 'kraftfull, genomgripande' },
+            { word: 'Dynamik', definition: 'kraftspel, rörelse' },
+            { word: 'Egalitär', definition: 'jämlikhetssträvande' },
+            { word: 'Eklatant', definition: 'uppenbar, slående' },
+            { word: 'Ekonomi', definition: 'hushållning med resurser' },
+            { word: 'Elementär', definition: 'grundläggande' },
+            { word: 'Elit', definition: 'en utvald grupp' },
+            { word: 'Eloquent', definition: 'vältalig' },
+            { word: 'Embargo', definition: 'handelsförbud' },
+            { word: 'Empati', definition: 'medkänsla, inlevelseförmåga' },
+            { word: 'Empirisk', definition: 'grundad på erfarenhet' },
+            { word: 'Enorm', definition: 'väldig, ofantlig' },
+            { word: 'Entusiasm', definition: 'iver, hänförelse' },
+            { word: 'Epilog', definition: 'efterord, slutord' },
+            { word: 'Epok', definition: 'tidsålder' },
+            { word: 'Erosion', definition: 'nötning, nedbrytning' },
+            { word: 'Eskalera', definition: 'trappa upp, öka' },
+            { word: 'Essens', definition: 'det väsentliga, kärnan' },
+            { word: 'Estetik', definition: 'läran om det sköna' },
+{ word: 'Eterisk', definition: 'flyktig, skör' },
+            { word: 'Etik', definition: 'moralregler' },
+            { word: 'Etnicitet', definition: 'folklig tillhörighet' },
+            { word: 'Eufori', definition: 'lyckokänsla' },
+            { word: 'Excentrisk', definition: 'udda, avvikande' },
+            { word: 'Explicit', definition: 'tydligt uttryckt' },
+            { word: 'Facil', definition: 'lättsam, billig, rimlig' },
+            { word: 'Fakta', definition: 'verkliga omständigheter' },
+            { word: 'Fatal', definition: 'ödesdiger, dödlig' },
+            { word: 'Fauna', definition: 'djurvärld' },
             { word: 'Filantrop', definition: 'människovän, välgörare' },
+            { word: 'Fiktion', definition: 'påhittad berättelse' },
+            { word: 'Flegmatisk', definition: 'trög, likgiltig, sävlig' },
+            { word: 'Flora', definition: 'växtvärld' },
+            { word: 'Fragment', definition: 'del, spillra' },
+            { word: 'Fraternisera', definition: 'förbrödra sig' },
+            { word: 'Fundamental', definition: 'grundläggande' },
+            { word: 'Garant', definition: 'person som går i god för något' },
+            { word: 'Generation', definition: 'släktled, årskull' },
+            { word: 'Genuin', definition: 'äkta, ursprunglig' },
+            { word: 'Global', definition: 'världsomfattande' },
+            { word: 'Hegemoni', definition: 'ledande ställning, övervälde' },
+            { word: 'Heterogen', definition: 'olikartad' },
+            { word: 'Hierarki', definition: 'rangordning' },
+            { word: 'Homogen', definition: 'enhetlig, likartad' },
+            { word: 'Humanism', definition: 'människovänlig livssyn' },
+            { word: 'Hybrid', definition: 'korsning, blandform' },
+            { word: 'Hypotes', definition: 'antagande' },
+            { word: 'Idealism', definition: 'strävan efter det fullkomliga' },
+            { word: 'Identitet', definition: 'självbild, egenart' },
+            { word: 'Ideologi', definition: 'politisk åskådning' },
+            { word: 'Illusion', definition: 'synvilla, falsk föreställning' },
+            { word: 'Implicit', definition: 'underförstådd, ej uttalad' },
+            { word: 'Improvisera', definition: 'göra något utan förberedelse' },
+            { word: 'Individ', definition: 'enskild person' },
+            { word: 'Indoktrinera', definition: 'hjärntvätta, påverka' },
+            { word: 'Induktion', definition: 'härledning från enskilda fall till allmän slutsats' },
+            { word: 'Infrastruktur', definition: 'samhällets grundläggande anläggningar' },
+            { word: 'Innovation', definition: 'nyskapande' },
+            { word: 'Integritet', definition: 'självständighet, okränkbarhet' },
+            { word: 'Intellektuell', definition: 'förståndsmässig, bildad' },
+            { word: 'Intensiv', definition: 'stark, kraftig' },
+            { word: 'Intuition', definition: 'omedelbar känsla, instinkt' },
+            { word: 'Ironi', definition: 'förställt hån' },
+            { word: 'Kardinalfel', definition: 'ett huvudfel, ett grundläggande misstag' },
+            { word: 'Karismatisk', definition: 'person med stark utstrålning' },
+            { word: 'Kategori', definition: 'grupp, klass' },
+            { word: 'Kausalitet', definition: 'orsakssamband' },
+            { word: 'Kollektiv', definition: 'gemensam, grupp' },
+            { word: 'Kompetens', definition: 'skicklighet, förmåga' },
+            { word: 'Komplex', definition: 'sammansatt, invecklad' },
+            { word: 'Kompromiss', definition: 'överenskommelse' },
+            { word: 'Koncept', definition: 'idé, plan' },
+            { word: 'Konklusion', definition: 'slutsats' },
+            { word: 'Konkret', definition: 'påtaglig, verklig' },
+            { word: 'Konsensus', definition: 'samförstånd, enighet' },
+            { word: 'Konsekvens', definition: 'följd, verkan' },
+            { word: 'Konstruktiv', definition: 'uppbyggande' },
+            { word: 'Kontext', definition: 'sammanhang' },
+            { word: 'Kontroversiell', definition: 'omtvistad' },
             { word: 'Korpulent', definition: 'kraftigt byggd, fetlagd' },
+            { word: 'Korrelation', definition: 'samband, ömsesidigt förhållande' },
+            { word: 'Kvalitativ', definition: 'som avser egenskaper' },
+            { word: 'Kvantitativ', definition: 'som avser mängd' },
+            { word: 'Lakoniskt', definition: 'kortfattat, kärnfullt' },
+            { word: 'Legitim', definition: 'laglig, berättigad' },
+            { word: 'Liberal', definition: 'fördomsfri, generös' },
+            { word: 'Logik', definition: 'följdriktigt tänkande' },
+            { word: 'Lojal', definition: 'trogen, pålitlig' },
+            { word: 'Mandat', definition: 'uppdrag' },
+            { word: 'Manifest', definition: 'tydlig, uppenbar; programförklaring' },
+            { word: 'Marginal', definition: 'skillnad, spelrum' },
+            { word: 'Mekanism', definition: 'verkningssätt' },
+            { word: 'Mentalitet', definition: 'tankesätt' },
+            { word: 'Metafor', definition: 'bildligt uttryck' },
+            { word: 'Metod', definition: 'tillvägagångssätt' },
+            { word: 'Modest', definition: 'anspråkslös, blygsam' },
+            { word: 'Modifiera', definition: 'ändra, anpassa' },
+            { word: 'Moment', definition: 'del, inslag' },
+            { word: 'Monotont', definition: 'enformigt' },
+            { word: 'Moral', definition: 'uppfattning om rätt och fel' },
+            { word: 'Motiv', definition: 'drivkraft, anledning' },
+            { word: 'Myt', definition: 'gudasaga, felaktig uppfattning' },
+            { word: 'Naiv', definition: 'godtrogen, barnslig' },
+            { word: 'Narcissism', definition: 'självupptagenhet' },
+            { word: 'Negligera', definition: 'försumma, strunta i' },
+            { word: 'Neutral', definition: 'opartisk' },
+            { word: 'Nisch', definition: 'specifikt område' },
+            { word: 'Nivå', definition: 'grad, plan' },
+            { word: 'Nominell', definition: 'till namnet, på papperet' },
+            { word: 'Norm', definition: 'regel, mönster' },
+            { word: 'Notorisk', definition: 'ökänd, allmänt känd' },
+            { word: 'Nyans', definition: 'finare åtskillnad' },
+            { word: 'Objektiv', definition: 'saklig, opartisk' },
+            { word: 'Obligatorisk', definition: 'tvångsmässig' },
+            { word: 'Obsolet', definition: 'föråldrad' },
+            { word: 'Oportun', definition: 'olämplig, oläglig' },
+            { word: 'Opposition', definition: 'motstånd' },
+            { word: 'Optimal', definition: 'bästa möjliga' },
+            { word: 'Paradigm', definition: 'mönster, förebild' },
+            { word: 'Paradox', definition: 'en skenbar motsägelse' },
+            { word: 'Parallell', definition: 'jämsides löpande' },
+            { word: 'Parameter', definition: 'variabel, faktor' },
+            { word: 'Passiv', definition: 'overksam' },
+            { word: 'Patos', definition: 'lidelse, stark känsla' },
+            { word: 'Periferi', definition: 'utkant, ytterområde' },
+            { word: 'Perspektiv', definition: 'synvinkel' },
+            { word: 'Plagiat', definition: 'textstöld, fusk' },
+            { word: 'Polarisering', definition: 'ökad motsättning' },
+            { word: 'Populism', definition: 'missnöjesparti' },
+            { word: 'Postum', definition: 'efter någons död' },
+            { word: 'Potentiell', definition: 'möjlig' },
+            { word: 'Pragmatisk', definition: 'resultatinriktad' },
+            { word: 'Precedens', definition: 'vägledande tidigare fall' },
+            { word: 'Precisera', definition: 'ange noggrant' },
             { word: 'Prekär', definition: 'besvärlig, bekymmersam' },
+            { word: 'Preliminär', definition: 'inledande, förberedande' },
+            { word: 'Premiss', definition: 'förutsättning' },
+            { word: 'Prestige', definition: 'anseende, status' },
+            { word: 'Preventiv', definition: 'förebyggande' },
+            { word: 'Primitiv', definition: 'enkel, outvecklad' },
+            { word: 'Princip', definition: 'grundsats, regel' },
+            { word: 'Prioritera', definition: 'ge företräde' },
+            { word: 'Privilegium', definition: 'förmånsrätt' },
+            { word: 'Process', definition: 'förlopp, utveckling' },
             { word: 'Profan', definition: 'världslig, ohelig' },
-            { word: 'Sekventiell', definition: 'som kommer i följd, i tur och ordning' }
+            { word: 'Profil', definition: 'karaktär, sida' },
+            { word: 'Prognos', definition: 'förutsägelse' },
+            { word: 'Progression', definition: 'framsteg, utveckling' },
+            { word: 'Projektion', definition: 'överföring av känslor på andra' },
+            { word: 'Prolog', definition: 'förord, inledning' },
+            { word: 'Promotion', definition: 'befordran, marknadsföring' },
+            { word: 'Proportionell', definition: 'i rätt förhållande' },
+            { word: 'Prosa', definition: 'berättande text' },
+            { word: 'Protestera', definition: 'invända, säga emot' },
+            { word: 'Prototyp', definition: 'första exemplar, förebild' },
+            { word: 'Provocera', definition: 'utmana, reta' },
+            { word: 'Pseudonym', definition: 'antaget namn' },
+            { word: 'Psykologi', definition: 'läran om själslivet' },
+            { word: 'Radikal', definition: 'genomgripande, extrem' },
+            { word: 'Rationalisera', definition: 'göra förnuftigare, effektivisera' },
+            { word: 'Reaktionär', definition: 'bakåtsträvande' },
+            { word: 'Realism', definition: 'verklighetssinne' },
+            { word: 'Reciprokt', definition: 'ömsesidigt' },
+            { word: 'Reducera', definition: 'minska' },
+            { word: 'Reflektera', definition: 'tänka över, återkasta ljus' },
+            { word: 'Reform', definition: 'förbättring' },
+            { word: 'Relation', definition: 'förhållande, samband' },
+            { word: 'Relevans', definition: 'betydelse, vikt' },
+            { word: 'Religiös', definition: 'gudfruktig, troende' },
+            { word: 'Renommé', definition: 'gott rykte' },
+            { word: 'Representation', definition: 'företrädare, avbildning' },
+            { word: 'Repression', definition: 'förtryck' },
+            { word: 'Resistens', definition: 'motståndskraft' },
+            { word: 'Resonemang', definition: 'tankeutveckling' },
+            { word: 'Respektive', definition: 'vardera, envar' },
+            { word: 'Restriktion', definition: 'inskränkning' },
+            { word: 'Resultat', definition: 'följd, utfall' },
+            { word: 'Retorik', definition: 'konsten att tala' },
+            { word: 'Revision', definition: 'granskning, ändring' },
+            { word: 'Revolution', definition: 'statsvälvning' },
+            { word: 'Ritual', definition: 'ceremoni, sed' },
+            { word: 'Robust', definition: 'kraftig, stark' },
+            { word: 'Rudimentär', definition: 'outvecklad, grundläggande' },
+            { word: 'Rutin', definition: 'vana, invant mönster' },
+            { word: 'Sanktion', definition: 'straffåtgärd; godkännande' },
+            { word: 'Satir', definition: 'hånfull skrift' },
+            { word: 'Scenario', definition: 'tänkbart händelseförlopp' },
+            { word: 'Skeptisk', definition: 'tvivlande' },
+            { word: 'Sekventiell', definition: 'som kommer i följd, i tur och ordning' },
+            { word: 'Selektiv', definition: 'kräsen, noggrant utvald' },
+            { word: 'Signalement', definition: 'personbeskrivning' },
+            { word: 'Simulera', definition: 'låtsas, efterlikna' },
+            { word: 'Solidaritet', definition: 'sammanhållning' },
+            { word: 'Solvent', definition: 'betalningsförmögen' },
+            { word: 'Specifik', definition: 'särskild, bestämd' },
+            { word: 'Spekulera', definition: 'fundera, gissa' },
+            { word: 'Spontan', definition: 'omedelbar, plötslig' },
+            { word: 'Stabil', definition: 'stadig, säker' },
+            { word: 'Stagnation', definition: 'avstannande, stillastående' },
+            { word: 'Status quo', definition: 'oförändrat tillstånd' },
+            { word: 'Stereotyp', definition: 'schablonbild, fördom' },
+            { word: 'Stimulera', definition: 'uppmuntra, egga' },
+            { word: 'Strategi', definition: 'långsiktig plan' },
+            { word: 'Struktur', definition: 'uppbyggnad, system' },
+            { word: 'Subjektiv', definition: 'personlig, osaklig' },
+            { word: 'Subtil', definition: 'hårfin, knappt märkbar' },
+            { word: 'Successiv', definition: 'gradvis, stegvis' },
+            { word: 'Suggestion', definition: 'mental påverkan' },
+            { word: 'Symbol', definition: 'tecken, sinnebild' },
+            { word: 'Sympati', definition: 'medkänsla, välvilja' },
+            { word: 'Symptom', definition: 'sjukdomstecken' },
+            { word: 'Synergi', definition: 'samverkanseffekt' },
+            { word: 'Syntes', definition: 'sammanfogning till en enhet' },
+            { word: 'Systematisk', definition: 'planmässig' },
+            { word: 'Tabu', definition: 'förbud, heligt' },
+            { word: 'Taktik', definition: 'kortsiktigt tillvägagångssätt' },
+            { word: 'Tendens', definition: 'benägenhet, riktning' },
+            { word: 'Teologi', definition: 'läran om Gud' },
+            { word: 'Teori', definition: 'vetenskaplig lära' },
+            { word: 'Tes', definition: 'påstående' },
+            { word: 'Tolerans', definition: 'fördragsamhet' },
+            { word: 'Tradition', definition: 'sedvänja' },
+            { word: 'Tragedi', definition: 'sorgespel' },
+            { word: 'Transformera', definition: 'omvandla' },
+            { word: 'Trend', definition: 'utvecklingslinje' },
+            { word: 'Trivial', definition: 'alldaglig, vanlig, obetydlig' },
+            { word: 'Tyrann', definition: 'förtryckare' },
+            { word: 'Underförstådd', definition: 'outtalad men antydd' },
+            { word: 'Unik', definition: 'ensam i sitt slag' },
+            { word: 'Universell', definition: 'allmängiltig' },
+            { word: 'Urban', definition: 'stadsmässig' },
+            { word: 'Utopi', definition: 'idealistiskt drömsamhälle' },
+            { word: 'Vag', definition: 'oklar, obestämd' },
+            { word: 'Validera', definition: 'bekräfta giltighet' },
+            { word: 'Verbal', definition: 'muntlig' },
+            { word: 'Verifiera', definition: 'bekräfta, intyga' },
+            { word: 'Veritabel', definition: 'verklig, äkta, sann' },
+            { word: 'Version', definition: 'utgåva, variant' },
+            { word: 'Vertikal', definition: 'lodrät' },
+            { word: 'Vision', definition: 'syn, framtidsbild' },
+            { word: 'Visuell', definition: 'synlig' },
+            { word: 'Vital', definition: 'livskraftig, viktig' },
+            { word: 'Volatil', definition: 'flyktig, instabil' },
+            { word: 'Volym', definition: 'omfång, styrka' },
+            { word: 'Värdering', definition: 'bedömning' }
         ];
 
         // --- DOM Elements ---
@@ -161,7 +439,6 @@
             views[viewName].classList.add('active');
         }
         
-        // Fisher-Yates shuffle algorithm
         function shuffleArray(array) {
             let shuffled = [...array];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -186,22 +463,18 @@
                 return;
             }
 
-            // Reset feedback
             feedbackMessage.textContent = '';
             answerOptionsContainer.innerHTML = '';
 
-            // Update counters and progress bar
             currentQuestionIndex++;
             scoreDisplay.textContent = score;
             questionCounter.textContent = `Fråga ${currentQuestionIndex} / ${QUESTIONS_IN_ROUND}`;
             progressBar.style.width = `${((currentQuestionIndex - 1) / QUESTIONS_IN_ROUND) * 100}%`;
             
-            // Get current question
             const currentQuestion = currentWordList[currentQuestionIndex - 1];
             wordDisplay.textContent = currentQuestion.word;
             correctAnswer = currentQuestion.definition;
 
-            // Generate answer options (1 correct, 3 incorrect)
             const options = new Set([correctAnswer]);
             while (options.size < 4) {
                 const randomWord = words[Math.floor(Math.random() * words.length)];
@@ -210,7 +483,6 @@
                 }
             }
 
-            // Display options on buttons
             const shuffledOptions = shuffleArray(Array.from(options));
             shuffledOptions.forEach(option => {
                 const button = document.createElement('button');
@@ -224,10 +496,8 @@
         function checkAnswer(event) {
             const selectedAnswer = event.target.textContent;
             
-            // Disable all buttons after selection
             Array.from(answerOptionsContainer.children).forEach(btn => {
                 btn.disabled = true;
-                // Highlight the correct answer regardless of user choice
                 if (btn.textContent === correctAnswer) {
                     btn.classList.add('correct');
                 }
@@ -243,9 +513,8 @@
                 feedbackMessage.className = 'h-6 text-lg text-center font-medium text-red-600';
             }
             
-            scoreDisplay.textContent = score; // Update score immediately
+            scoreDisplay.textContent = score;
 
-            // Wait 2 seconds before showing the next question
             setTimeout(displayNextQuestion, 2000);
         }
 

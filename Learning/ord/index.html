@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öva Svenska Ord</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="quiz-container">
+        <header>
+            <h1>Öva på svenska ord</h1>
+            <p id="score-text">Poäng: 0</p>
+        </header>
+        
+        <main>
+            <p class="instruction-text">Vad betyder det svenska ordet:</p>
+            <h2 id="word-to-guess">...</h2>
+            
+            <div id="answer-buttons" class="btn-grid">
+                </div>
+            
+            <p id="feedback-text"></p>
+            
+            <button id="next-word-btn" class="next-btn hidden">Nästa ord</button>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

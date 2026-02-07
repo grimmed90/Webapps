@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oml-kalk</title>
+    <title>Verktyg</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,49 +26,124 @@
 
     <div class="w-full max-w-md mx-auto bg-white rounded-2xl shadow-lg p-8 space-y-6">
         
-        <header class="text-center">
-            <h1 class="text-3xl font-bold text-gray-800">Omläggning</h1>
-            <p class="text-gray-500 mt-1">Beräkna tid tills nästa omläggning.</p>
-        </header>
-
-        <!-- Inmatningsformulär -->
-        <div class="space-y-4">
-            <div>
-                <label for="start-time" class="block text-sm font-medium text-gray-700">Starttid (senaste tambourskifte)</label>
-                <input type="time" id="start-time" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
-            </div>
-            <div>
-                <label for="tonnage" class="block text-sm font-medium text-gray-700">Ton kvar</label>
-                <input type="number" id="tonnage" inputmode="decimal" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="t.ex. 100" required>
-            </div>
-            <div>
-                <label for="speed" class="block text-sm font-medium text-gray-700">Hastighet (ton/timme)</label>
-                <input type="number" id="speed" inputmode="decimal" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="t.ex. 20" required>
+        <!-- Main Menu -->
+        <div id="main-menu" class="space-y-6">
+             <header class="text-center">
+                <h1 class="text-3xl font-bold text-gray-800">Verktyg</h1>
+                <p class="text-gray-500 mt-1">Välj ett verktyg nedan.</p>
+            </header>
+            <div class="space-y-4">
+                <button id="btn-omlaggning" class="w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Omläggning</button>
+                <button id="btn-skifttid" class="w-full py-3 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Skifttidtagare</button>
             </div>
         </div>
 
-        <!-- Knapp -->
-        <div>
-            <button id="calculate-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform active:scale-95">
-                Beräkna
-            </button>
+        <!-- Omläggning View -->
+        <div id="omlaggning-view" class="hidden space-y-6">
+             <header class="text-center">
+                <h1 class="text-3xl font-bold text-gray-800">Omläggning</h1>
+                <p class="text-gray-500 mt-1">Beräkna tid tills nästa omläggning.</p>
+            </header>
+
+             <!-- Inmatningsformulär -->
+            <div class="space-y-4">
+                <div>
+                    <label for="start-time" class="block text-sm font-medium text-gray-700">Starttid (senaste tambourskifte)</label>
+                    <input type="time" id="start-time" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                </div>
+                <div>
+                    <label for="tonnage" class="block text-sm font-medium text-gray-700">Ton kvar</label>
+                    <input type="number" id="tonnage" inputmode="decimal" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="t.ex. 100" required>
+                </div>
+                <div>
+                    <label for="speed" class="block text-sm font-medium text-gray-700">Hastighet (ton/timme)</label>
+                    <input type="number" id="speed" inputmode="decimal" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="t.ex. 20" required>
+                </div>
+            </div>
+
+            <!-- Knapp -->
+            <div>
+                <button id="calculate-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform active:scale-95">
+                    Beräkna
+                </button>
+            </div>
+
+            <!-- Resultatvisning -->
+            <div id="result-container" class="text-center pt-4 hidden">
+                 <p class="text-gray-600">Beräknad sluttid:</p>
+                 <p id="result-text" class="text-2xl font-bold text-blue-700"></p>
+                 <p id="result-date" class="text-lg font-medium text-gray-500"></p>
+            </div>
+
+            <!-- Felmeddelande -->
+            <div id="error-container" class="text-center pt-4 hidden">
+                 <p id="error-text" class="text-md font-medium text-red-600"></p>
+            </div>
+
+            <button id="back-to-menu-oml" class="w-full mt-4 py-2 text-sm text-gray-600 hover:text-gray-900">Tillbaka till menyn</button>
         </div>
 
-        <!-- Resultatvisning -->
-        <div id="result-container" class="text-center pt-4 hidden">
-             <p class="text-gray-600">Beräknad sluttid:</p>
-             <p id="result-text" class="text-2xl font-bold text-blue-700"></p>
-             <p id="result-date" class="text-lg font-medium text-gray-500"></p>
-        </div>
-        
-        <!-- Felmeddelande -->
-        <div id="error-container" class="text-center pt-4 hidden">
-             <p id="error-text" class="text-md font-medium text-red-600"></p>
+        <!-- Skifttidtagare View -->
+        <div id="skifttid-view" class="hidden space-y-6">
+            <header class="text-center">
+                <h1 class="text-3xl font-bold text-gray-800">Skifttidtagare</h1>
+                <p class="text-gray-500 mt-1">Se hur lång tid som är kvar av skiftet.</p>
+            </header>
+
+            <div id="skifttid-content">
+                <div class="space-y-4">
+                     <div>
+                        <label for="shift-select" class="block text-sm font-medium text-gray-700">Välj skift</label>
+                        <select id="shift-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                            <option value="">Välj...</option>
+                            <option value="1">F12 (Förmiddag 12h) - Slutar 17:30</option>
+                            <option value="2">N12 (Natt 12h) - Slutar 05:30</option>
+                            <option value="3">F (Förmiddag) - Slutar 13:30</option>
+                            <option value="4">E (Eftermiddag) - Slutar 21:30</option>
+                            <option value="5">N (Natt) - Slutar 05:30</option>
+                        </select>
+                    </div>
+
+                    <div id="countdown-container" class="text-center pt-8 hidden">
+                        <p class="text-gray-500 text-sm">Tid kvar av skiftet</p>
+                        <p id="countdown-display" class="text-4xl font-bold text-gray-900 mt-2 font-mono">00:00</p>
+                        <p id="countdown-subtext" class="text-sm text-gray-400 mt-2"></p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="back-to-menu-skift" class="w-full mt-4 py-2 text-sm text-gray-600 hover:text-gray-900">Tillbaka till menyn</button>
         </div>
 
     </div>
 
     <script>
+        // --- Navigation Logic ---
+        const mainMenu = document.getElementById('main-menu');
+        const omlaggningView = document.getElementById('omlaggning-view');
+        const skifttidView = document.getElementById('skifttid-view');
+
+        document.getElementById('btn-omlaggning').addEventListener('click', () => {
+            mainMenu.classList.add('hidden');
+            omlaggningView.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-skifttid').addEventListener('click', () => {
+            mainMenu.classList.add('hidden');
+            skifttidView.classList.remove('hidden');
+        });
+
+        document.getElementById('back-to-menu-oml').addEventListener('click', () => {
+            omlaggningView.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+
+        document.getElementById('back-to-menu-skift').addEventListener('click', () => {
+            skifttidView.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        });
+
+        // --- Omläggning Logic ---
         // Hämta DOM-element
         const startTimeInput = document.getElementById('start-time');
         const tonnageInput = document.getElementById('tonnage');
@@ -159,6 +234,69 @@
                     calculateEndTime();
                 }
             });
+        });
+
+        // --- Skifttidtagare Logic ---
+        const shiftSelect = document.getElementById('shift-select');
+        const countdownContainer = document.getElementById('countdown-container');
+        const countdownDisplay = document.getElementById('countdown-display');
+        const countdownSubtext = document.getElementById('countdown-subtext');
+
+        const shiftEndTimes = {
+            "1": { name: "F12", hour: 17, minute: 30 },
+            "2": { name: "N12", hour: 5, minute: 30 },
+            "3": { name: "F",   hour: 13, minute: 30 },
+            "4": { name: "E",   hour: 21, minute: 30 },
+            "5": { name: "N",   hour: 5, minute: 30 }
+        };
+
+        let countdownInterval;
+
+        function updateCountdown() {
+            const shiftCode = shiftSelect.value;
+            if (!shiftCode || !shiftEndTimes[shiftCode]) {
+                countdownContainer.classList.add('hidden');
+                return;
+            }
+
+            countdownContainer.classList.remove('hidden');
+            const shift = shiftEndTimes[shiftCode];
+            const now = new Date();
+            let endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), shift.hour, shift.minute);
+
+            // Om sluttiden redan har passerat idag (t.ex. vid nattskift efter midnatt),
+            // eller om vi är i ett nattskift som slutar imorgon:
+            if (now > endTime) {
+                endTime.setDate(endTime.getDate() + 1);
+            }
+
+            const diff = endTime - now;
+
+            // Om diff är negativt (borde inte hända med +1 dag logik, men för säkerhets skull)
+            if (diff < 0) {
+                 countdownDisplay.textContent = "Skiftet slut!";
+                 return;
+            }
+
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            // const seconds = Math.floor((diff % (1000 * 60)) / 1000); // Om vi vill visa sekunder
+
+            countdownDisplay.textContent = `${hours}h ${minutes}m`;
+
+            const optionsDate = { weekday: 'long', day: 'numeric', month: 'long' };
+            const dateStr = endTime.toLocaleDateString('sv-SE', optionsDate);
+            const timeStr = endTime.toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'});
+
+            countdownSubtext.textContent = `Slutar ${timeStr} (${dateStr})`;
+        }
+
+        shiftSelect.addEventListener('change', () => {
+            updateCountdown();
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (shiftSelect.value) {
+                countdownInterval = setInterval(updateCountdown, 1000);
+            }
         });
 
     </script>

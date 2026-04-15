@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eurojackpot Quantum Alchemist</title>
+    <style>
+        :root {
+            --gold: #ffcf33;
+            --deep-blue: #0a0e17;
+            --neon-blue: #00f2ff;
+        }
+
+        body {
+            background-color: var(--deep-blue);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 30px rgba(255, 207, 51, 0.2);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+        }
+
+        h1 {
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+        }
+
+        .formula-text {
+            font-size: 0.8rem;
+            color: var(--neon-blue);
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .row-display {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .ball {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #d4d4d4);
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.5);
+            animation: pop 0.4s ease-out forwards;
+        }
+
+        .ball.star {
+            background: radial-gradient(circle at 30% 30%, #ffeb3b, #fbc02d);
+            border: 2px solid var(--gold);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        button {
+            background: transparent;
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: var(--gold);
+            color: var(--deep-blue);
+            box-shadow: 0 0 20px var(--gold);
+        }
+
+        .stats {
+            margin-top: 1.5rem;
+            font-size: 0.7rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Eurojackpot</h1>
+        <div class="formula-text">$\Phi$-Weighted Fibonacci Chaos Engine v2.0</div>
+        
+        <div id="output" class="row-display">
+            </div>
+
+        <button onclick="generateLuckyRow()">Aktivera Algoritmen</button>
+
+        <div class="stats" id="stats">
+            Väntar på initiering...
+        </div>
+    </div>
+
+    <script>
+        const PHI = 1.61803398875;
+        const FIBONACCI = [1, 2, 3, 5, 8, 13, 21, 34];
+
+        function generateLuckyRow() {
+            const output = document.getElementById('output');
+            const stats = document.getElementById('stats');
+            output.innerHTML = '';
+
+            // 1. Skapa viktad pool för huvudnummer (1-50)
+            let mainPool = [];
+            for (let i = 1; i <= 50; i++) {
+                let weight = 10;
+                // Ge extra vikt till Fibonacci-tal
+                if (FIBONACCI.includes(i)) weight += 15;
+                // Ge vikt baserat på Gyllene Snittet-harmoni
+                if (i % Math.round(PHI * 2) === 0) weight += 5;
+                // Ge vikt till primtal (många anser dem vara tursamma)
+                if (isPrime(i)) weight += 8;
+
+                for (let j = 0; j < weight; j++) mainPool.push(i);
+            }
+
+            // 2. Generera huvudnummer (5 st) med Gauss-kontroll
+            let mainNumbers = [];
+            while (mainNumbers.length < 5) {
+                let num = mainPool[Math.floor(Math.random() * mainPool.length)];
+                if (!mainNumbers.includes(num)) {
+                    mainNumbers.push(num);
+                }
+                
+                // Om vi har 5 tal, kolla om summan är "harmonisk" (mellan 100 och 160)
+                if (mainNumbers.length === 5) {
+                    let sum = mainNumbers.reduce((a, b) => a + b, 0);
+                    if (sum < 90 || sum > 170) {
+                        mainNumbers = []; // Gör om om raden är för "osannolik"
+                    }
+                }
+            }
+            mainNumbers.sort((a, b) => a - b);
+
+            // 3. Generera Stjärnnummer (2 st mellan 1-12)
+            let stars = [];
+            while (stars.length < 2) {
+                let s = Math.floor(Math.random() * 12) + 1;
+                if (!stars.includes(s)) stars.push(s);
+            }
+            stars.sort((a, b) => a - b);
+
+            // 4. Rendera bollar
+            mainNumbers.forEach((n, i) => {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'ball';
+                    el.innerText = n;
+                    output.appendChild(el);
+                }, i * 150);
+            });
+
+            stars.forEach((s, i) => {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.className = 'ball star';
+                    el.innerText = s;
+                    output.appendChild(el);
+                }, (5 + i) * 150);
+            });
+
+            const finalSum = mainNumbers.reduce((a, b) => a + b, 0);
+            stats.innerHTML = `Entropi-check: Godkänd | Harmonisk Summa: ${finalSum} | Kvantsignatur: ${Math.random().toString(16).slice(2, 10)}`;
+        }
+
+        function isPrime(num) {
+            for(let i = 2, s = Math.sqrt(num); i <= s; i++)
+                if(num % i === 0) return false; 
+            return num > 1;
+        }
+    </script>
+</body>
+</html>

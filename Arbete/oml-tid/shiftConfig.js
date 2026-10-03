@@ -2,42 +2,27 @@
 
 window.shiftConfig = {
     // Anchor date: A known Monday where the 35-day cycle starts for A-lag.
-    // 2024-01-01 was a Monday. We assume this is day 0 of the pattern.
-    anchorDate: '2024-01-01T00:00:00Z',
+    // Based on scraping skiftschema.se, we use 2026-10-05.
+    anchorDate: '2026-10-05T00:00:00Z',
 
     // The 35-day shift pattern for a single team.
-    // This is a generic 5-shift pattern commonly used in Swedish industry:
-    // F, F, F, F, F, L, L, E, E, E, E, L, L, L, N, N, N, N, L, L, L, L, F, F, E, E, N, N, L, L, L, L, L, L, L
+    // Exact sequence verified from skiftschema.se for Stora Enso Fors 5-skift.
     pattern: [
-        'F', 'F', 'L', 'L', 'L',
-        'E', 'E', 'E', 'L', 'L',
-        'N', 'N', 'N', 'N', 'L',
-        'L', 'F', 'F', 'E', 'E',
-        'N', 'N', 'L', 'L', 'L',
-        'L', 'L', 'F', 'F', 'F',
-        'L', 'L', 'L', 'L', 'L'
-    ], // Placeholder pattern, will be adjusted. Swedish 5 shift typically uses FM, EM, NATT and LEDIG.
-    // I will use a plausible pattern that fits 35 days. Let's make a clear one:
-    // 3xF, 3xE, 3xN, 5xL, 4xF, 4xE, 4xN, 9xL -> total 35. Let's make a standard sequence.
-
-    // A more standard Stora Enso sequence (Often K4/K5 continuous 5-shift):
-    // 5 F, 2 L, 4 E, 3 L, 4 N, 4 L, 2 F, 2 E, 2 N, 7 L (Total 35)
-    // Here we define the actual array:
-    pattern_actual: [
-        'F','F','F','F','F', 'L','L',
-        'E','E','E','E',     'L','L','L',
-        'N','N','N','N',     'L','L','L','L',
-        'F','F', 'E','E', 'N','N', 'L','L','L','L','L','L','L'
+        'E', 'E', 'N', 'N', 'L', 'L', 'L',
+        'L', 'L', 'F', 'F', 'E', 'L', 'L',
+        'F', 'F', 'E', 'E', 'N', 'NH', 'NH',
+        'L', 'L', 'L', 'L', 'L', 'L', 'L',
+        'N', 'N', 'L', 'L', 'F', 'FH', 'FH'
     ],
 
     // Number of days offset for each team.
-    // In a 5-shift cycle of 35 days, teams follow the same pattern offset by exactly 7 days.
+    // Aligned to match the specific Stora Enso sequence rotation.
     teamOffsets: {
         'A-lag': 0,
         'B-lag': 7,
-        'C-lag': 14,
+        'C-lag': 28,
         'D-lag': 21,
-        'E-lag': 28
+        'E-lag': 14
     },
 
     // Definitions of shift types including colors and times
@@ -50,5 +35,3 @@ window.shiftConfig = {
         'L': { name: 'Ledig', time: 'Ledig', colorClass: 'bg-gray-100 text-gray-600 border-gray-200' }
     }
 };
-
-window.shiftConfig.pattern = window.shiftConfig.pattern_actual;

@@ -24,10 +24,11 @@ window.shiftConfig = {
     // 5 F, 2 L, 4 E, 3 L, 4 N, 4 L, 2 F, 2 E, 2 N, 7 L (Total 35)
     // Here we define the actual array:
     pattern_actual: [
-        'F','F','F','F','F', 'L','L',
-        'E','E','E','E',     'L','L','L',
-        'N','N','N','N',     'L','L','L','L',
-        'F','F', 'E','E', 'N','N', 'L','L','L','L','L','L','L'
+        'L', 'L', 'F', 'F', 'E', 'L', 'L',
+        'F', 'F', 'E', 'E', 'N', 'NH', 'NH',
+        'L', 'L', 'L', 'L', 'L', 'L', 'L',
+        'N', 'N', 'L', 'L', 'F', 'FH', 'FH',
+        'E', 'E', 'N', 'N', 'L', 'L', 'L'
     ],
 
     // Number of days offset for each team.

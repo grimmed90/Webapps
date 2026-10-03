@@ -12,6 +12,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="res/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="res/favicon-16x16.png">
     <link rel="manifest" href="res/site.webmanifest">
+    <script src="shiftConfig.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -34,7 +36,7 @@
             </header>
             <div class="space-y-4">
                 <button id="btn-omlaggning" class="w-full py-3 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">Omläggning</button>
-                <button id="btn-skifttid" class="w-full py-3 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Skifttidtagare</button>
+                <button id="btn-skiftschema" class="w-full py-3 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 transition">Skiftschema</button>
             </div>
         </div>
 
@@ -83,36 +85,77 @@
             <button id="back-to-menu-oml" class="w-full mt-4 py-2 text-sm text-gray-600 hover:text-gray-900">Tillbaka till menyn</button>
         </div>
 
-        <!-- Skifttidtagare View -->
-        <div id="skifttid-view" class="hidden space-y-6">
+        <!-- Skiftschema View -->
+        <div id="skiftschema-view" class="hidden space-y-6">
             <header class="text-center">
-                <h1 class="text-3xl font-bold text-gray-800">Skifttidtagare</h1>
-                <p class="text-gray-500 mt-1">Se hur lång tid som är kvar av skiftet.</p>
+                <h1 class="text-3xl font-bold text-gray-800">Skiftschema</h1>
+                <p class="text-gray-500 mt-1">Stora Enso Fors (5-skift)</p>
             </header>
 
-            <div id="skifttid-content">
-                <div class="space-y-4">
-                     <div>
-                        <label for="shift-select" class="block text-sm font-medium text-gray-700">Välj skift</label>
-                        <select id="shift-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                            <option value="">Välj...</option>
-                            <option value="1">F12 (Förmiddag 12h) - Slutar 17:30</option>
-                            <option value="2">N12 (Natt 12h) - Slutar 05:30</option>
-                            <option value="3">F (Förmiddag) - Slutar 13:30</option>
-                            <option value="4">E (Eftermiddag) - Slutar 21:30</option>
-                            <option value="5">N (Natt) - Slutar 05:30</option>
-                        </select>
+            <div class="space-y-4">
+                <div>
+                    <select id="team-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 bg-gray-50 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md font-medium text-gray-700 shadow-sm">
+                        <option value="Alla lag">Alla lag</option>
+                        <option value="A-lag">A-lag</option>
+                        <option value="B-lag">B-lag</option>
+                        <option value="C-lag">C-lag</option>
+                        <option value="D-lag">D-lag</option>
+                        <option value="E-lag">E-lag</option>
+                    </select>
+                </div>
+
+                <!-- My Team Container -->
+                <div id="my-team-container" class="hidden space-y-6">
+                    <!-- Today Badge -->
+                    <div id="my-team-today" class="text-center p-6 rounded-xl border">
+                        <!-- Content injected via JS -->
                     </div>
 
-                    <div id="countdown-container" class="text-center pt-8 hidden">
-                        <p class="text-gray-500 text-sm">Tid kvar av skiftet</p>
-                        <p id="countdown-display" class="text-4xl font-bold text-gray-900 mt-2 font-mono">00:00</p>
-                        <p id="countdown-subtext" class="text-sm text-gray-400 mt-2"></p>
+                    <!-- Monthly Calendar Grid -->
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Schema Månad</h3>
+                        <div id="my-team-calendar" class="grid grid-cols-7 gap-1 text-center text-xs">
+                            <!-- JS will inject days and shifts here -->
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Shifts List -->
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Kommande Skift (14 dagar)</h3>
+                        <ul id="my-team-agenda" class="space-y-2">
+                             <!-- Content injected via JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- All Teams Matrix Container -->
+                <div id="all-teams-container" class="hidden space-y-4 overflow-hidden">
+                    <div class="flex justify-between items-center bg-gray-50 p-2 rounded-md border">
+                        <label for="matrix-date" class="text-sm font-medium text-gray-700">Startdatum:</label>
+                        <input type="date" id="matrix-date" class="block pl-3 pr-3 py-1 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm">
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-3 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Datum</th>
+                                    <th scope="col" class="px-2 py-3 text-center font-medium text-gray-500 uppercase tracking-wider">A</th>
+                                    <th scope="col" class="px-2 py-3 text-center font-medium text-gray-500 uppercase tracking-wider">B</th>
+                                    <th scope="col" class="px-2 py-3 text-center font-medium text-gray-500 uppercase tracking-wider">C</th>
+                                    <th scope="col" class="px-2 py-3 text-center font-medium text-gray-500 uppercase tracking-wider">D</th>
+                                    <th scope="col" class="px-2 py-3 text-center font-medium text-gray-500 uppercase tracking-wider">E</th>
+                                </tr>
+                            </thead>
+                            <tbody id="matrix-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Content injected via JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <button id="back-to-menu-skift" class="w-full mt-4 py-2 text-sm text-gray-600 hover:text-gray-900">Tillbaka till menyn</button>
+            <button id="back-to-menu-skiftschema" class="w-full mt-4 py-2 text-sm text-gray-600 hover:text-gray-900">Tillbaka till menyn</button>
         </div>
 
     </div>
@@ -121,16 +164,16 @@
         // --- Navigation Logic ---
         const mainMenu = document.getElementById('main-menu');
         const omlaggningView = document.getElementById('omlaggning-view');
-        const skifttidView = document.getElementById('skifttid-view');
+        const skiftschemaView = document.getElementById('skiftschema-view');
 
         document.getElementById('btn-omlaggning').addEventListener('click', () => {
             mainMenu.classList.add('hidden');
             omlaggningView.classList.remove('hidden');
         });
 
-        document.getElementById('btn-skifttid').addEventListener('click', () => {
+        document.getElementById('btn-skiftschema').addEventListener('click', () => {
             mainMenu.classList.add('hidden');
-            skifttidView.classList.remove('hidden');
+            skiftschemaView.classList.remove('hidden');
         });
 
         document.getElementById('back-to-menu-oml').addEventListener('click', () => {
@@ -138,8 +181,8 @@
             mainMenu.classList.remove('hidden');
         });
 
-        document.getElementById('back-to-menu-skift').addEventListener('click', () => {
-            skifttidView.classList.add('hidden');
+        document.getElementById('back-to-menu-skiftschema').addEventListener('click', () => {
+            skiftschemaView.classList.add('hidden');
             mainMenu.classList.remove('hidden');
         });
 
@@ -236,69 +279,284 @@
             });
         });
 
-        // --- Skifttidtagare Logic ---
-        const shiftSelect = document.getElementById('shift-select');
-        const countdownContainer = document.getElementById('countdown-container');
-        const countdownDisplay = document.getElementById('countdown-display');
-        const countdownSubtext = document.getElementById('countdown-subtext');
+        // --- Skiftschema Logic ---
+        const teamSelect = document.getElementById('team-select');
+        const myTeamContainer = document.getElementById('my-team-container');
+        const allTeamsContainer = document.getElementById('all-teams-container');
+        const matrixDateInput = document.getElementById('matrix-date');
 
-        const shiftEndTimes = {
-            "1": { name: "F12", hour: 17, minute: 30 },
-            "2": { name: "N12", hour: 5, minute: 30 },
-            "3": { name: "F",   hour: 13, minute: 30 },
-            "4": { name: "E",   hour: 21, minute: 30 },
-            "5": { name: "N",   hour: 5, minute: 30 }
-        };
+        const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
-        let countdownInterval;
+        function getShift(targetDate, teamOffset) {
+            if (!window.shiftConfig) return 'L';
+            const anchorDate = new Date(window.shiftConfig.anchorDate);
 
-        function updateCountdown() {
-            const shiftCode = shiftSelect.value;
-            if (!shiftCode || !shiftEndTimes[shiftCode]) {
-                countdownContainer.classList.add('hidden');
-                return;
-            }
+            // Convert both dates to UTC midnight to avoid timezone offset issues
+            const utcTarget = Date.UTC(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+            const utcAnchor = Date.UTC(anchorDate.getFullYear(), anchorDate.getMonth(), anchorDate.getDate());
 
-            countdownContainer.classList.remove('hidden');
-            const shift = shiftEndTimes[shiftCode];
-            const now = new Date();
-            let endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), shift.hour, shift.minute);
+            // Calculate absolute difference in days
+            const diffDays = Math.floor((utcTarget - utcAnchor) / MS_PER_DAY);
 
-            // Om sluttiden redan har passerat idag (t.ex. vid nattskift efter midnatt),
-            // eller om vi är i ett nattskift som slutar imorgon:
-            if (now > endTime) {
-                endTime.setDate(endTime.getDate() + 1);
-            }
+            const cycleLength = window.shiftConfig.pattern.length;
+            // Mathematical modulo to handle negative days if necessary
+            let shiftIndex = ((diffDays - teamOffset) % cycleLength + cycleLength) % cycleLength;
+            return window.shiftConfig.pattern[shiftIndex];
+        }
 
-            const diff = endTime - now;
+        function getShiftTypeInfo(shiftCode) {
+             return window.shiftConfig.shiftTypes[shiftCode] || window.shiftConfig.shiftTypes['L'];
+        }
 
-            // Om diff är negativt (borde inte hända med +1 dag logik, men för säkerhets skull)
-            if (diff < 0) {
-                 countdownDisplay.textContent = "Skiftet slut!";
+        let shiftCountdownInterval;
+
+        function updateMyTeamCountdown(shiftCode, shiftInfo) {
+            const countdownEl = document.getElementById('my-team-countdown');
+            if (!countdownEl) return;
+
+            if (shiftCode === 'L') {
+                 countdownEl.textContent = "Du är ledig!";
                  return;
             }
 
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            // const seconds = Math.floor((diff % (1000 * 60)) / 1000); // Om vi vill visa sekunder
+            const timeParts = shiftInfo.time.split(' - ');
+            if (timeParts.length !== 2) return;
 
-            countdownDisplay.textContent = `${hours}h ${minutes}m`;
+            const [startHour, startMinute] = timeParts[0].split(':').map(Number);
+            const [endHour, endMinute] = timeParts[1].split(':').map(Number);
 
-            const optionsDate = { weekday: 'long', day: 'numeric', month: 'long' };
-            const dateStr = endTime.toLocaleDateString('sv-SE', optionsDate);
-            const timeStr = endTime.toLocaleTimeString('sv-SE', {hour: '2-digit', minute:'2-digit'});
+            const now = new Date();
+            let endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMinute);
+            let startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, startMinute);
 
-            countdownSubtext.textContent = `Slutar ${timeStr} (${dateStr})`;
+            // Handle cross-midnight shifts (e.g. 22:00 - 06:00)
+            if (endHour < startHour) {
+                if (now.getHours() >= startHour) {
+                    // It's before midnight, shift ends tomorrow
+                    endTime.setDate(endTime.getDate() + 1);
+                } else {
+                    // It's after midnight, shift started yesterday
+                    startTime.setDate(startTime.getDate() - 1);
+                }
+            }
+
+            if (now < startTime) {
+                 const diff = startTime - now;
+                 const hours = Math.floor(diff / (1000 * 60 * 60));
+                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                 countdownEl.textContent = `Börjar om: ${hours}h ${minutes}m`;
+            } else if (now >= startTime && now <= endTime) {
+                 const diff = endTime - now;
+                 const hours = Math.floor(diff / (1000 * 60 * 60));
+                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                 countdownEl.textContent = `Tid kvar: ${hours}h ${minutes}m`;
+            } else {
+                 countdownEl.textContent = "Skiftet slut för idag!";
+            }
         }
 
-        shiftSelect.addEventListener('change', () => {
-            updateCountdown();
-            if (countdownInterval) clearInterval(countdownInterval);
-            if (shiftSelect.value) {
-                countdownInterval = setInterval(updateCountdown, 1000);
+        function renderMyTeamView(teamName) {
+            const teamOffset = window.shiftConfig.teamOffsets[teamName];
+            const today = new Date();
+
+            // 1. Render Today
+            const todayShiftCode = getShift(today, teamOffset);
+            const todayShiftInfo = getShiftTypeInfo(todayShiftCode);
+            const todayContainer = document.getElementById('my-team-today');
+            todayContainer.className = `text-center p-6 rounded-xl border ${todayShiftInfo.colorClass} flex flex-col justify-between`;
+
+            todayContainer.innerHTML = `
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-wider mb-1 opacity-80">Ditt skift idag</p>
+                    <p class="text-4xl font-bold mb-2">${todayShiftInfo.name}</p>
+                    <p class="text-sm opacity-90 mb-4">${todayShiftInfo.time}</p>
+                </div>
+                <div class="bg-white bg-opacity-30 rounded p-2 inline-block self-center min-w-[200px]">
+                    <p id="my-team-countdown" class="text-lg font-mono font-bold tracking-tight"></p>
+                </div>
+            `;
+
+            // Clear any existing interval
+            if (shiftCountdownInterval) clearInterval(shiftCountdownInterval);
+
+            // Update immediately, then every minute
+            updateMyTeamCountdown(todayShiftCode, todayShiftInfo);
+            if (todayShiftCode !== 'L') {
+                shiftCountdownInterval = setInterval(() => {
+                    updateMyTeamCountdown(todayShiftCode, todayShiftInfo);
+                }, 60000);
             }
+
+            // 2. Render Agenda (Next 14 Days)
+            today.setHours(0,0,0,0);
+            const agendaContainer = document.getElementById('my-team-agenda');
+            agendaContainer.innerHTML = '';
+            for (let i = 1; i <= 14; i++) {
+                const futureDate = new Date(today);
+                futureDate.setDate(today.getDate() + i);
+                const shiftCode = getShift(futureDate, teamOffset);
+                const shiftInfo = getShiftTypeInfo(shiftCode);
+
+                const dateStr = futureDate.toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' });
+
+                const li = document.createElement('li');
+                li.className = `flex justify-between items-center p-3 rounded-lg border ${shiftInfo.colorClass}`;
+                li.innerHTML = `
+                    <span class="font-medium capitalize w-24">${dateStr}</span>
+                    <span class="font-bold flex-1 text-center">${shiftInfo.name}</span>
+                    <span class="text-xs opacity-75 w-20 text-right">${shiftCode !== 'L' ? shiftInfo.time.split(' - ')[0] : ''}</span>
+                `;
+                agendaContainer.appendChild(li);
+            }
+
+            // 3. Render Monthly Calendar
+            const calendarContainer = document.getElementById('my-team-calendar');
+            calendarContainer.innerHTML = '';
+
+            const currentYear = today.getFullYear();
+            const currentMonth = today.getMonth();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // 0 is Sunday
+
+            // Adjust so Monday is first column
+            const startEmptyCells = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+            // Header for weekdays
+            const weekdays = ['Må', 'Ti', 'On', 'To', 'Fr', 'Lö', 'Sö'];
+            weekdays.forEach(day => {
+                const headerCell = document.createElement('div');
+                headerCell.className = 'font-semibold text-gray-500 py-1';
+                headerCell.textContent = day;
+                calendarContainer.appendChild(headerCell);
+            });
+
+            // Empty cells
+            for (let i = 0; i < startEmptyCells; i++) {
+                const emptyCell = document.createElement('div');
+                calendarContainer.appendChild(emptyCell);
+            }
+
+            // Days
+            for (let i = 1; i <= daysInMonth; i++) {
+                const cellDate = new Date(currentYear, currentMonth, i);
+                const shiftCode = getShift(cellDate, teamOffset);
+                const shiftInfo = getShiftTypeInfo(shiftCode);
+
+                const isToday = i === today.getDate();
+
+                const cell = document.createElement('div');
+                cell.className = `p-2 rounded flex flex-col items-center justify-center ${shiftInfo.colorClass} ${isToday ? 'ring-2 ring-black font-bold' : ''}`;
+                cell.innerHTML = `
+                    <span class="text-xs opacity-75">${i}</span>
+                    <span class="font-semibold">${shiftCode}</span>
+                `;
+                calendarContainer.appendChild(cell);
+            }
+        }
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+            return weekNo;
+        }
+
+        function renderMatrixView(startDate) {
+            const tableBody = document.getElementById('matrix-table-body');
+            tableBody.innerHTML = '';
+
+            const teams = ['A-lag', 'B-lag', 'C-lag', 'D-lag', 'E-lag'];
+
+            let currentWeek = -1;
+
+            for (let i = 0; i < 14; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+
+                const tr = document.createElement('tr');
+
+                // Add week separator if week changes
+                const weekNum = getWeekNumber(date);
+                if (weekNum !== currentWeek && i !== 0 && date.getDay() === 1) { // Monday
+                    const separator = document.createElement('tr');
+                    separator.className = 'bg-gray-100';
+                    separator.innerHTML = `<td colspan="6" class="px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Vecka ${weekNum}</td>`;
+                    tableBody.appendChild(separator);
+                    currentWeek = weekNum;
+                } else if (i === 0) {
+                     currentWeek = weekNum;
+                     const separator = document.createElement('tr');
+                     separator.className = 'bg-gray-100';
+                     separator.innerHTML = `<td colspan="6" class="px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Vecka ${weekNum}</td>`;
+                     tableBody.appendChild(separator);
+                }
+
+                const dateStr = date.toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'numeric' });
+
+                let rowHtml = `<td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900 capitalize">${dateStr}</td>`;
+
+                teams.forEach(team => {
+                    const offset = window.shiftConfig.teamOffsets[team];
+                    const shiftCode = getShift(date, offset);
+                    const shiftInfo = getShiftTypeInfo(shiftCode);
+                    rowHtml += `<td class="px-2 py-2 whitespace-nowrap text-sm text-center font-bold ${shiftInfo.colorClass}">${shiftCode}</td>`;
+                });
+
+                tr.innerHTML = rowHtml;
+                tableBody.appendChild(tr);
+            }
+        }
+
+        function updateSkiftschemaView() {
+            const selected = teamSelect.value;
+            localStorage.setItem('selectedTeam', selected);
+
+            if (selected === 'Alla lag') {
+                myTeamContainer.classList.add('hidden');
+                allTeamsContainer.classList.remove('hidden');
+
+                let matrixDate = new Date();
+                if (matrixDateInput.value) {
+                    matrixDate = new Date(matrixDateInput.value);
+                } else {
+                    matrixDateInput.valueAsDate = new Date();
+                }
+                renderMatrixView(matrixDate);
+            } else {
+                allTeamsContainer.classList.add('hidden');
+                myTeamContainer.classList.remove('hidden');
+                renderMyTeamView(selected);
+            }
+        }
+
+        // Initialize Skiftschema
+        const savedTeam = localStorage.getItem('selectedTeam');
+        if (savedTeam) {
+            teamSelect.value = savedTeam;
+        } else {
+            // Default to Alla lag if nothing is saved
+            teamSelect.value = 'Alla lag';
+        }
+
+        teamSelect.addEventListener('change', updateSkiftschemaView);
+        matrixDateInput.addEventListener('change', () => {
+             if(teamSelect.value === 'Alla lag') renderMatrixView(new Date(matrixDateInput.value));
         });
 
+        // Add event listener to update view when tab is opened
+        document.getElementById('btn-skiftschema').addEventListener('click', updateSkiftschemaView);
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
     </script>
 </body>
 </html>

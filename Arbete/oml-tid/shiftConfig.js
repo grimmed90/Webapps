@@ -36,9 +36,9 @@ window.shiftConfig = {
     teamOffsets: {
         'A-lag': 0,
         'B-lag': 7,
-        'C-lag': 14,
-        'D-lag': 21,
-        'E-lag': 28
+        'C-lag': 28,
+        'D-lag': 14,
+        'E-lag': 21
     },
 
     // Definitions of shift types including colors and times

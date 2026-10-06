@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>KM Löpmeter OCR</title>
+  <title>KM Löpmeter Skanner</title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -50,7 +50,7 @@
           KM
         </div>
         <div>
-          <h1 class="text-sm font-semibold tracking-tight text-zinc-900">Löpmeter OCR</h1>
+          <h1 class="text-sm font-semibold tracking-tight text-zinc-900">Löpmeter Skanner</h1>
           <p class="text-[11px] text-zinc-400">Automatisk kö-inläsning via kamera</p>
         </div>
       </div>
@@ -110,10 +110,10 @@
 
         <!-- Måttanpassat rektangulärt sikte för en tabellcell -->
         <div id="viewfinder-overlay" class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center hidden">
-          <div class="relative w-52 sm:w-60 h-16 sm:h-20 rounded-lg border-2 border-zinc-900 viewfinder-mask flex items-center justify-center overflow-hidden">
+          <div class="relative w-80 sm:w-96 h-16 sm:h-20 rounded-lg border-2 border-zinc-900 viewfinder-mask flex items-center justify-center overflow-hidden">
             <div class="scanner-line absolute left-0 right-0 h-0.5 bg-zinc-900"></div>
             <span class="text-[10px] font-mono-num font-bold tracking-wider uppercase text-zinc-700 bg-white/90 px-2 py-0.5 rounded border border-zinc-200">
-              LÖPMETER
+              LÖPMETER & KÖ
             </span>
           </div>
         </div>
@@ -389,9 +389,9 @@
       try {
         const worker = await Tesseract.createWorker('eng');
         // PSM 7 = Single text line.
-        // Strikt whitelist '0123456789' ser till att inga bokstäver eller skiljetecken feltolkas.
+        // Strikt whitelist '0123456789 ' ser till att inga bokstäver eller skiljetecken feltolkas.
         await worker.setParameters({
-          tessedit_char_whitelist: '0123456789',
+          tessedit_char_whitelist: '0123456789 ',
           tessedit_pageseg_mode: '7'
         });
         state.ocrWorker = worker;
@@ -409,13 +409,13 @@
       if (!vidW || !vidH) return null;
 
       // Hämta centrum av videon (motsvarande sökramen)
-      const rawW = Math.floor(vidW * 0.40);
+      const rawW = Math.floor(vidW * 0.75);
       const rawH = Math.floor(vidH * 0.17);
       const rawX = Math.floor((vidW - rawW) / 2);
       const rawY = Math.floor((vidH - rawH) / 2);
 
-      // Klipp in 14% på sidorna för att slippa datorskärmens svarta vertikala tabellinjer '|'
-      const insetX = Math.floor(rawW * 0.14);
+      // Klipp in 2% på sidorna för att täcka en bredare yta
+      const insetX = Math.floor(rawW * 0.02);
       const insetY = Math.floor(rawH * 0.12);
       const targetW = rawW - (insetX * 2);
       const targetH = rawH - (insetY * 2);
@@ -444,11 +444,23 @@
         sumLum += (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
       }
       const avgLum = sumLum / (data.length / 4);
-      const threshold = avgLum * 0.76;
+
+      // Anpassa för mörkblå bakgrund med vit text
+      const isDarkBackground = avgLum < 127;
+
+      const threshold = isDarkBackground ? avgLum * 1.2 : avgLum * 0.76;
 
       for (let i = 0; i < data.length; i += 4) {
         const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        const pixelVal = lum < threshold ? 0 : 255; // Svart text på vit botten
+
+        // Om mörk bakgrund, invertera så vit text blir svart
+        let pixelVal;
+        if (isDarkBackground) {
+          pixelVal = lum > threshold ? 0 : 255;
+        } else {
+          pixelVal = lum < threshold ? 0 : 255;
+        }
+
         data[i] = pixelVal;
         data[i + 1] = pixelVal;
         data[i + 2] = pixelVal;
@@ -468,12 +480,41 @@
       state.ocrBusy = true;
       try {
         const result = await state.ocrWorker.recognize(canvas);
-        const cleanDigits = (result.data.text || '').replace(/[^0-9]/g, '');
 
-        // Validering: Löpmeter på maskinen är minst 3 siffror och max 6 siffror
-        if (cleanDigits.length >= 3 && cleanDigits.length <= 6) {
-          const num = parseInt(cleanDigits, 10);
-          handleOcrDetection(num);
+        // Hitta alla tal i texten
+        const matches = (result.data.text || '').match(/\d+/g);
+
+        if (matches && matches.length >= 1) {
+          let detectedQueue = null;
+          let detectedMeters = null;
+
+          if (matches.length === 1) {
+            // Bara ett tal hittades, antagligen löpmeter
+            if (matches[0].length >= 3 && matches[0].length <= 6) {
+              detectedMeters = parseInt(matches[0], 10);
+            }
+          } else {
+            // Flera tal hittades, gissa att det lilla talet är kö och det stora är löpmeter
+            const num1 = parseInt(matches[0], 10);
+            const num2 = parseInt(matches[1], 10);
+
+            if (num1 < 100 && num2 >= 100) {
+              detectedQueue = num1;
+              detectedMeters = num2;
+            } else if (num2 < 100 && num1 >= 100) {
+              detectedQueue = num2;
+              detectedMeters = num1;
+            } else {
+               // Fallback: använd det som matchar bäst
+               if (matches[0].length >= 3 && matches[0].length <= 6) detectedMeters = parseInt(matches[0], 10);
+            }
+          }
+
+          if (detectedMeters !== null) {
+            handleOcrDetection(detectedMeters, detectedQueue);
+          } else {
+            setLiveNumberDisplay(null);
+          }
         } else {
           setLiveNumberDisplay(null);
         }
@@ -501,8 +542,12 @@
       }
     }
 
-    function handleOcrDetection(val) {
+    function handleOcrDetection(val, detectedQueue = null) {
       setLiveNumberDisplay(val);
+
+      if (detectedQueue !== null && detectedQueue !== state.targetQueue && detectedQueue > 0) {
+        setTargetQueue(detectedQueue);
+      }
 
       if (!checkAutoSave.checked) return;
 

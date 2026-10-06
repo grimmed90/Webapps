@@ -40,6 +40,33 @@
         .scanner-laser {
             animation: scan-line-anim 2.2s infinite ease-in-out;
         }
+
+            .font-mono-num {
+              font-family: 'JetBrains Mono', monospace;
+            }
+
+            /* Bankapp-siktram med mörklagd periferi */
+            .viewfinder-mask {
+              box-shadow: 0 0 0 9999px rgba(8, 12, 24, 0.82);
+            }
+
+            @keyframes laser-sweep {
+              0% { top: 8%; opacity: 0.3; }
+              50% { top: 92%; opacity: 1; }
+              100% { top: 8%; opacity: 0.3; }
+            }
+            .laser-line {
+              animation: laser-sweep 1.7s infinite ease-in-out;
+            }
+
+            @keyframes pulse-ring {
+              0% { transform: scale(0.97); opacity: 0.8; }
+              50% { transform: scale(1.02); opacity: 1; }
+              100% { transform: scale(0.97); opacity: 0.8; }
+            }
+            .ring-active {
+              animation: pulse-ring 1.8s infinite ease-in-out;
+            }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen antialiased">
@@ -189,359 +216,377 @@
 
     <!-- Körprogram View -->
     <div id="korprogram-view" class="hidden w-full h-full text-slate-100 flex flex-col bg-slate-950">
-      <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-lg">
-        <div class="flex items-center space-x-3">
-          <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white shadow-md shadow-cyan-500/20">
-            <i data-lucide="gauge" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h1 class="text-base font-bold leading-none tracking-tight text-white flex items-center gap-2">
-              Körprogram OCR
-              <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">Industri</span>
-            </h1>
-            <p class="text-xs text-slate-400 mt-0.5">Meterräknare & Tidsestimering</p>
-          </div>
-        </div>
+      <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex items-center justify-between shadow-lg">
+    <div class="flex items-center space-x-3">
+      <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-cyan-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+        <i data-lucide="scan-line" class="w-5 h-5"></i>
+      </div>
+      <div>
         <div class="flex items-center gap-2">
-          <button id="btn-manual-modal" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 flex items-center gap-1.5 active:scale-95 transition">
-            <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i>
-            <span>Manuell</span>
-          </button>
-          <button id="btn-reset-all" class="p-1.5 text-xs font-medium rounded-lg bg-slate-800/80 hover:bg-rose-950/60 hover:text-rose-400 border border-slate-700/80 text-slate-400 active:scale-95 transition" title="Rensa alla köer">
-            <i data-lucide="trash-2" class="w-4 h-4"></i>
-          </button>
-          <button id="btn-back-korprogram" class="ml-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 flex items-center gap-1.5 active:scale-95 transition">
-            <span>Tillbaka</span>
-          </button>
+          <h1 class="text-base font-extrabold tracking-tight text-white">KM Körprogram OCR</h1>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-950/80 text-amber-400 border border-amber-800/80">KARTONGMASKIN</span>
         </div>
-      </header>
-
-      <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6 pb-28">
-        <!-- KAMERASEKTION & OCR -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-          <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
-            <div class="flex items-center gap-2">
-              <span class="flex h-2.5 w-2.5 relative">
-                <span id="camera-status-dot" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 hidden"></span>
-                <span id="camera-status-core" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-slate-500"></span>
-              </span>
-              <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-300">Kamera & OCR-Inläsning</h2>
-            </div>
-            <div class="flex items-center gap-2">
-              <label class="cursor-pointer text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center gap-1.5 active:scale-95 transition">
-                <i data-lucide="image-up" class="w-3.5 h-3.5 text-cyan-400"></i>
-                <span>Välj fil/foto</span>
-                <input type="file" id="file-input" accept="image/*" class="hidden">
-              </label>
-            </div>
-          </div>
-
-          <div class="p-4 sm:p-5">
-            <!-- Kamera Vy / Canvas Container -->
-            <div class="relative w-full aspect-[4/3] sm:aspect-[16/9] bg-slate-950 rounded-xl overflow-hidden border border-slate-800 flex items-center justify-center">
-
-              <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
-              <canvas id="snapshot-canvas" class="hidden"></canvas>
-              <img id="preview-image" class="w-full h-full object-contain hidden" alt="Förhandsgranskning">
-
-              <!-- Startkamera Placeholder -->
-              <div id="camera-placeholder" class="text-center p-6 space-y-3">
-                <div class="w-14 h-14 mx-auto rounded-full bg-slate-800/80 border border-slate-700 flex items-center justify-center text-cyan-400">
-                  <i data-lucide="camera" class="w-7 h-7"></i>
-                </div>
-                <div>
-                  <p class="text-sm font-medium text-slate-200">Starta kameran för att sikta på körprogrammet</p>
-                  <p class="text-xs text-slate-400 mt-1">Rikta mot ljusblå raden för kö och löpmeter (t.ex. Kö 1 = 3493 m)</p>
-                </div>
-                <button id="btn-start-camera" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-sm shadow-lg shadow-cyan-600/30 transition active:scale-95">
-                  <i data-lucide="video" class="w-4 h-4"></i>
-                  Starta Live-Kamera
-                </button>
-              </div>
-
-              <!-- Live Scanner Overlay med Sökram -->
-              <div id="scanner-overlay" class="absolute inset-0 pointer-events-none hidden">
-                <div class="w-full h-full flex items-center justify-center p-6">
-                  <div class="scan-target-box relative w-full max-w-md h-32 sm:h-36 rounded-xl border-2 border-cyan-400/90 bg-transparent flex flex-col justify-between p-2">
-                    <div class="scanner-laser absolute left-1 right-1 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_8px_#22d3ee]"></div>
-                    <div class="flex justify-between items-start text-[10px] font-mono-num text-cyan-400 font-bold">
-                      <span class="bg-slate-900/80 px-1.5 py-0.5 rounded border border-cyan-500/30">KÖ NR</span>
-                      <span class="bg-slate-900/80 px-1.5 py-0.5 rounded border border-cyan-500/30">LÖPMETER (RAD SUMMA)</span>
-                    </div>
-                    <div class="text-center">
-                      <span class="text-[11px] font-semibold tracking-wide bg-slate-900/90 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/40 backdrop-blur-sm">
-                        Placera 'Kö' & 'Löpmeter' i rutan
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Loading / OCR Processing Status -->
-              <div id="ocr-loader" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 z-20 hidden">
-                <div class="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                <p id="ocr-loader-text" class="text-sm font-semibold text-white mt-4">Läser av siffror...</p>
-                <p id="ocr-loader-sub" class="text-xs text-cyan-400 font-mono-num mt-1">Initierar OCR</p>
-              </div>
-            </div>
-
-            <!-- Kamerakontroller -->
-            <div class="mt-4 flex flex-wrap gap-2 items-center justify-between">
-              <div class="flex gap-2">
-                <button id="btn-capture-scan" disabled class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-cyan-600/20 active:scale-95 transition">
-                  <i data-lucide="scan" class="w-4 h-4"></i>
-                  <span>Scanna Bildruta</span>
-                </button>
-                <button id="btn-toggle-camera" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-sm hidden flex items-center gap-1.5 active:scale-95 transition" title="Byt kamera / Avsluta">
-                  <i data-lucide="switch-camera" class="w-4 h-4"></i>
-                </button>
-              </div>
-
-              <div class="text-xs text-slate-400 flex items-center gap-1.5">
-                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-                <span>Dubblettspärr aktiv</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div id="ocr-confirm-card" class="bg-cyan-950/40 border-2 border-cyan-500/70 rounded-2xl p-4 sm:p-5 shadow-2xl relative hidden animate-in fade-in zoom-in-95 duration-200">
-          <div class="flex items-center justify-between pb-3 border-b border-cyan-800/50">
-            <div class="flex items-center gap-2">
-              <span class="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-300">
-                <i data-lucide="check-check" class="w-4 h-4"></i>
-              </span>
-              <h3 class="text-sm font-bold text-white uppercase tracking-wider">Bekräfta inläst data</h3>
-            </div>
-            <button id="btn-cancel-confirm" class="text-slate-400 hover:text-white p-1">
-              <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            <div>
-              <label class="block text-xs font-semibold text-cyan-300 uppercase tracking-wider mb-1.5">Kö-nummer</label>
-              <div class="relative">
-                <input type="number" id="input-confirm-queue" min="1" step="1" class="w-full bg-slate-900 border border-cyan-500/60 rounded-xl px-3.5 py-2.5 text-lg font-bold font-mono-num text-white focus:outline-none focus:ring-2 focus:ring-cyan-400">
-                <span class="absolute right-3.5 top-3 text-xs font-semibold text-slate-400">Kö #</span>
-              </div>
-              <p id="confirm-queue-status" class="text-xs mt-1 text-slate-400">Nästa förväntade: Kö 1</p>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-cyan-300 uppercase tracking-wider mb-1.5">Löpmeter (meter)</label>
-              <div class="relative">
-                <input type="number" id="input-confirm-meters" min="1" step="1" class="w-full bg-slate-900 border border-cyan-500/60 rounded-xl px-3.5 py-2.5 text-lg font-bold font-mono-num text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400">
-                <span class="absolute right-3.5 top-3 text-xs font-semibold text-slate-400">m</span>
-              </div>
-              <p class="text-xs mt-1 text-slate-400">Kontrollera mot radens totalsumma</p>
-            </div>
-          </div>
-
-          <!-- Varning om kö redan finns -->
-          <div id="duplicate-warning" class="mt-3 p-3 bg-amber-950/70 border border-amber-600/60 rounded-xl text-amber-200 text-xs flex items-center gap-2 hidden">
-            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400 flex-shrink-0"></i>
-            <span><strong>Varning:</strong> Detta Kö-nummer finns redan registrerat! Vill du uppdatera den befintliga raden istället?</span>
-          </div>
-
-          <div class="mt-4 flex justify-end gap-2">
-            <button id="btn-save-confirm" class="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/30 transition active:scale-95">
-              <i data-lucide="check" class="w-4 h-4"></i>
-              <span>Godkänn & Spara till Lista</span>
-            </button>
-          </div>
-        </div>
-
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-          <div class="p-4 sm:p-5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-900/60">
-            <div>
-              <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-300 flex items-center gap-2">
-                <i data-lucide="list-ordered" class="w-4 h-4 text-cyan-400"></i>
-                Inlästa Köer i Körprogrammet
-              </h2>
-              <p class="text-xs text-slate-400 mt-0.5">Visar alla registrerade körordrar och dess löpmeter</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="text-right">
-                <span class="text-xs text-slate-400 block">Antal köer</span>
-                <span id="badge-queue-count" class="text-sm font-bold font-mono-num text-white">0 st</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tabell över Köer -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="bg-slate-950/70 text-slate-400 text-[11px] uppercase tracking-wider font-semibold border-b border-slate-800">
-                <tr>
-                  <th scope="col" class="py-3 px-4">Kö NR</th>
-                  <th scope="col" class="py-3 px-4">Löpmeter</th>
-                  <th scope="col" class="py-3 px-4 hidden sm:table-cell">Andel</th>
-                  <th scope="col" class="py-3 px-4 text-right">Åtgärd</th>
-                </tr>
-              </thead>
-              <tbody id="queue-table-body" class="divide-y divide-slate-800/70">
-                <!-- Fylls dynamiskt -->
-                <tr id="empty-state-row">
-                  <td colspan="4" class="py-12 text-center text-slate-500">
-                    <i data-lucide="clipboard-list" class="w-10 h-10 mx-auto text-slate-600 mb-2 stroke-1"></i>
-                    <p class="text-sm font-medium">Inga köer inlästa ännu</p>
-                    <p class="text-xs text-slate-500 mt-1">Använd kameran eller knappen 'Manuell' ovan för att lägga till Kö 1</p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Total banner i tabellen -->
-          <div class="p-4 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
-            <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">
-              Total Mängd Körprogram
-            </div>
-            <div class="flex items-baseline gap-2">
-              <span class="text-xs text-slate-400">Summa:</span>
-              <span id="display-total-meters" class="text-2xl sm:text-3xl font-extrabold font-mono-num text-cyan-400">0</span>
-              <span class="text-sm font-semibold text-slate-300">meter</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-6">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div class="flex items-center gap-2">
-              <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
-                <i data-lucide="timer" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <h2 class="text-sm font-semibold tracking-wide uppercase text-slate-200">Hastighet & Körtidsberäkning</h2>
-                <p class="text-xs text-slate-400">Ange maskinhastighet för att räkna ut total tid</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
-            <!-- Hastighetsfält -->
-            <div class="md:col-span-6 space-y-2">
-              <label for="input-speed" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Maskinhastighet (m/min)
-              </label>
-              <div class="relative">
-                <input type="number" id="input-speed" min="1" step="10" placeholder="T.ex. 350" value="300" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-lg font-bold font-mono-num text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition">
-                <span class="absolute right-3.5 top-3.5 text-xs font-semibold text-slate-400">m / min</span>
-              </div>
-
-              <!-- Snabbvalshastigheter -->
-              <div class="flex flex-wrap gap-1.5 pt-1">
-                <span class="text-[11px] text-slate-500 py-1 mr-1">Snabbval:</span>
-                <button type="button" class="speed-pill px-2.5 py-1 text-xs font-mono-num font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" data-speed="150">150</button>
-                <button type="button" class="speed-pill px-2.5 py-1 text-xs font-mono-num font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" data-speed="250">250</button>
-                <button type="button" class="speed-pill px-2.5 py-1 text-xs font-mono-num font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" data-speed="300">300</button>
-                <button type="button" class="speed-pill px-2.5 py-1 text-xs font-mono-num font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" data-speed="400">400</button>
-                <button type="button" class="speed-pill px-2.5 py-1 text-xs font-mono-num font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" data-speed="500">500</button>
-                <button type="button" class="speed-pill px-2.5 py-1 text-xs font-mono-num font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition" data-speed="600">600</button>
-              </div>
-            </div>
-
-            <!-- Beräkna knapp -->
-            <div class="md:col-span-6 flex">
-              <button id="btn-calculate-korprogram" class="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold text-base shadow-lg shadow-cyan-600/30 active:scale-[0.98] transition flex items-center justify-center gap-3">
-                <i data-lucide="calculator" class="w-5 h-5"></i>
-                <span>Räkna Ut Körtid</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <!-- Minuter Total -->
-            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/90 relative overflow-hidden">
-              <span class="text-slate-400 text-xs font-medium uppercase tracking-wider block">Körtid i minuter</span>
-              <div class="mt-1 flex items-baseline gap-1.5">
-                <span id="res-total-minutes" class="text-2xl font-bold font-mono-num text-white">0.0</span>
-                <span class="text-xs text-slate-400 font-medium">min</span>
-              </div>
-              <div class="absolute -right-2 -bottom-2 text-slate-800/40 pointer-events-none">
-                <i data-lucide="clock" class="w-16 h-16"></i>
-              </div>
-            </div>
-
-            <!-- Timmar & Minuter (hh:mm) -->
-            <div class="bg-slate-950 p-4 rounded-xl border border-cyan-900/40 relative overflow-hidden">
-              <span class="text-cyan-400 text-xs font-medium uppercase tracking-wider block">Format (Tim : Min)</span>
-              <div class="mt-1 flex items-baseline gap-1.5">
-                <span id="res-formatted-time" class="text-2xl font-bold font-mono-num text-cyan-300">0 tim 0 min</span>
-              </div>
-              <span id="res-exact-hhmm" class="text-[11px] text-slate-400 font-mono-num block mt-0.5">00:00:00</span>
-              <div class="absolute -right-2 -bottom-2 text-cyan-950/40 pointer-events-none">
-                <i data-lucide="hourglass" class="w-16 h-16"></i>
-              </div>
-            </div>
-
-            <!-- Sluttid -->
-            <div class="bg-slate-950 p-4 rounded-xl border border-emerald-900/40 relative overflow-hidden">
-              <span class="text-emerald-400 text-xs font-medium uppercase tracking-wider block">Beräknad Sluttid</span>
-              <div class="mt-1 flex items-baseline gap-1.5">
-                <span id="res-finish-clock" class="text-2xl font-bold font-mono-num text-emerald-300">--:--</span>
-                <span class="text-xs text-slate-400 font-medium">klockan</span>
-              </div>
-              <span id="res-finish-date" class="text-[11px] text-slate-400 block mt-0.5">Vid start nu</span>
-              <div class="absolute -right-2 -bottom-2 text-emerald-950/40 pointer-events-none">
-                <i data-lucide="calendar-check" class="w-16 h-16"></i>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-4 text-xs text-slate-400 flex items-start gap-3">
-          <i data-lucide="info" class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5"></i>
-          <div class="space-y-1">
-            <p class="font-semibold text-slate-200">Tips för att läsa av bildskärmen:</p>
-            <p>• Håll telefonen stadigt och rikta sökramen rakt mot raden med ljusblå bakgrund (där det står t.ex. <span class="font-mono-num text-cyan-300 font-bold">1</span> och <span class="font-mono-num text-cyan-300 font-bold">3493</span>, eller <span class="font-mono-num text-cyan-300 font-bold">2</span> och <span class="font-mono-num text-cyan-300 font-bold">13988</span>).</p>
-            <p>• Om OCR misstolkar skärmreflexer kan du enkelt klicka på raden eller använda <strong>"Manuell"</strong> för att korrigera på 2 sekunder.</p>
-          </div>
-        </div>
-      </main>
-    </div>
-
-    <!-- Manuell modal (Körprogram) -->
-    <div id="manual-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-      <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-          <h3 id="modal-title" class="text-base font-bold text-white flex items-center gap-2">
-            <i data-lucide="edit-3" class="w-4 h-4 text-cyan-400"></i>
-            <span>Lägg till Körorder Manuellt</span>
-          </h3>
-          <button id="btn-close-modal" class="text-slate-400 hover:text-white p-1 rounded-lg">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-
-        <div class="space-y-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Kö-nummer</label>
-            <div class="relative">
-              <input type="number" id="modal-input-queue" min="1" step="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-base font-mono-num font-bold text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
-            </div>
-            <p id="modal-queue-hint" class="text-xs text-slate-400 mt-1">Ange Kö 1, 2, 3...</p>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Löpmeter (m)</label>
-            <input type="number" id="modal-input-meters" min="1" step="1" placeholder="t.ex. 3493" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-base font-mono-num font-bold text-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-500">
-          </div>
-        </div>
-
-        <div class="pt-3 flex gap-3 justify-end">
-          <button id="btn-cancel-modal" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 text-sm font-semibold transition">
-            Avbryt
-          </button>
-          <button id="btn-submit-modal" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold shadow-lg shadow-cyan-600/30 transition">
-            Spara rad
-          </button>
-        </div>
+        <p class="text-xs text-slate-400">Spatial cell-läsare & Tambourkalkylator</p>
       </div>
     </div>
 
-    <script>
+    <div class="flex items-center gap-2">
+      <!-- Ljud on/off toggle -->
+      <button id="btn-toggle-sound" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-300 hover:text-cyan-400 active:scale-95 transition" title="Ljudsignal vid godkänd inläsning">
+        <i id="sound-icon" data-lucide="volume-2" class="w-4 h-4 text-cyan-400"></i>
+      </button>
+      <!-- Nollställ hela körprogrammet -->
+      <button id="btn-prompt-reset" class="p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-400 hover:text-rose-400 active:scale-95 transition" title="Töm körprogram / Ny tambour">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+      </button>
+      <button id="btn-back-korprogram" class="ml-2 p-2.5 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 hover:bg-slate-700 flex items-center gap-1.5 active:scale-95 transition" title="Tillbaka till menyn">
+        <span>Tillbaka</span>
+      </button>
+    </div>
+  </header>
+
+  <div id="toast-banner" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-2">
+    <div id="toast-content" class="px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-semibold border bg-slate-900 border-slate-700 text-white backdrop-blur-md">
+      <i id="toast-icon" data-lucide="check-circle2" class="w-4 h-4 text-emerald-400"></i>
+      <span id="toast-msg">Information</span>
+    </div>
+  </div>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto p-3 sm:p-5 space-y-4 pb-28">
+
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+      <!-- Kamerastatus och navigering för aktiv kö -->
+      <div class="p-3.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2.5 bg-slate-900/80">
+        <div class="flex items-center gap-2.5">
+          <span class="flex h-3 w-3 relative">
+            <span id="camera-pulse" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 hidden"></span>
+            <span id="camera-dot" class="relative inline-flex rounded-full h-3 w-3 bg-slate-600"></span>
+          </span>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Bankapp-AutoOCR</span>
+            <span id="ocr-status-badge" class="ml-2 text-[11px] font-mono-num text-slate-400">Redo att starta</span>
+          </div>
+        </div>
+
+        <!-- Mål-kö navigator -->
+        <div class="flex items-center gap-2 bg-slate-950 px-3 py-1 rounded-xl border border-slate-800">
+          <span class="text-[11px] text-slate-400 font-medium">Söker aktivt:</span>
+          <span id="active-target-queue" class="font-mono-num text-xs font-bold text-amber-400 px-2 py-0.5 rounded bg-amber-950/80 border border-amber-800/60">Kö 1</span>
+        </div>
+      </div>
+
+      <!-- Kamera Viewer & Sikte -->
+      <div class="relative w-full aspect-[4/3] sm:aspect-[16/9] bg-black overflow-hidden flex items-center justify-center">
+        <!-- Live videoström -->
+        <video id="camera-stream" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
+
+        <!-- Dold canvas för spatial beskärning och kontrast-filter -->
+        <canvas id="crop-canvas" class="hidden"></canvas>
+
+        <!-- Placeholder när kameran är avstängd -->
+        <div id="camera-off-state" class="text-center p-6 space-y-3.5 z-10">
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-800/90 border border-slate-700 flex items-center justify-center text-amber-400 shadow-inner">
+            <i data-lucide="camera" class="w-8 h-8"></i>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-200">Starta auto-skanning av datorskärmen</p>
+            <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              Håll telefonen mot KM-körprogrammet. Appen separerar automatiskt <span class="text-emerald-400 font-bold">Löpmeter</span> (till vänster) från <span class="text-slate-400 font-bold">Dia.</span> (till höger) och piper vid inläsning.
+            </p>
+          </div>
+          <button id="btn-power-camera" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 via-orange-600 to-cyan-600 hover:brightness-110 text-white font-bold text-sm shadow-xl shadow-amber-600/30 active:scale-95 transition">
+            <i data-lucide="play" class="w-4 h-4 fill-white"></i>
+            <span>Starta Auto-Scanner</span>
+          </button>
+        </div>
+
+        <!-- Siktram i Bankapp-stil -->
+        <div id="scanner-viewfinder" class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center hidden">
+          <!-- Dynamisk retikel (Smal cell eller Bred rad) -->
+          <div id="reticle-box" class="relative w-[85%] max-w-sm h-28 sm:h-32 rounded-xl border-2 border-amber-400/90 viewfinder-mask flex flex-col justify-between p-2.5 overflow-hidden transition-all duration-300">
+            <!-- Pulserande laserskanning -->
+            <div class="laser-line absolute left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_12px_#fbbf24]"></div>
+
+            <div class="flex justify-between items-start text-[10px] font-bold font-mono-num z-10">
+              <span id="badge-reticle-left" class="bg-emerald-950/90 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/50">1. LÖPMETER (VÄNSTER)</span>
+              <span id="badge-reticle-right" class="bg-slate-900/90 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">2. DIA (HÖGER)</span>
+            </div>
+
+            <div class="text-center z-10">
+              <span id="scanner-hint-text" class="text-[11px] font-bold tracking-wide bg-slate-950/90 text-amber-300 px-3 py-1 rounded-full border border-amber-400/50 backdrop-blur-md shadow-lg">
+                Rikta mot radens löpmeter
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Snabb träff-overlay med kvitteringsbanner -->
+        <div id="detection-flash" class="absolute inset-0 bg-emerald-500/25 backdrop-blur-[2px] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200 z-20">
+          <div class="bg-emerald-950/95 border-2 border-emerald-400 text-emerald-200 px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 transform scale-105">
+            <i data-lucide="check-circle" class="w-8 h-8 text-emerald-400"></i>
+            <div>
+              <div id="flash-title" class="text-xs font-bold uppercase tracking-wider text-emerald-300">Kö 1 Registrerad</div>
+              <div id="flash-sub" class="text-xl font-mono-num font-extrabold text-white">3 493 m</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live upptäckta tal med klickbara chips -->
+      <div id="live-chips-container" class="p-3 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center gap-2 min-h-[50px]">
+        <div class="flex items-center gap-1.5 text-slate-400 text-xs font-semibold mr-1">
+          <i data-lucide="eye" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Kameran ser:</span>
+        </div>
+        <div id="chips-list" class="flex flex-wrap items-center gap-2">
+          <span class="text-xs text-slate-600 italic">Väntar på siffror i siktet...</span>
+        </div>
+      </div>
+
+      <!-- Kamerakontroller och siktejustering -->
+      <div class="p-3 sm:p-4 bg-slate-900/90 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Val av sikte: Smal cell vs Hel rad -->
+          <div class="inline-flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button id="btn-sight-narrow" type="button" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition">
+              Smal ruta
+            </button>
+            <button id="btn-sight-wide" type="button" class="px-2.5 py-1 rounded-lg text-xs font-bold text-amber-400 bg-slate-800 border border-slate-700 shadow-sm transition">
+              Bred rad (Vänster-val)
+            </button>
+          </div>
+
+          <!-- Ändra aktiv sök-kö manuellt -->
+          <div class="inline-flex items-center bg-slate-950 rounded-xl border border-slate-800 p-1">
+            <span class="text-[11px] text-slate-400 px-2 font-medium">Sök kö:</span>
+            <button id="btn-prev-target" class="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 flex items-center justify-center font-bold font-mono-num">-</button>
+            <span id="target-queue-num" class="w-8 text-center font-mono-num font-bold text-amber-400 text-xs">1</span>
+            <button id="btn-next-target" class="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 flex items-center justify-center font-bold font-mono-num">+</button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btn-toggle-cam-active" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="power" class="w-3.5 h-3.5 text-rose-400"></i>
+            <span id="btn-cam-text">Stoppa</span>
+          </button>
+          <button id="btn-open-manual-entry" class="px-3.5 py-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/60 text-amber-300 border border-amber-800/80 font-semibold text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Lägg till manuellt</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+            <i data-lucide="gauge" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200">Kartongmaskin: Tambour & Hastighet</h2>
+            <p class="text-xs text-slate-400">Beräkna kör- och bytestid utifrån senaste tambourskiftet</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Tidpunkt för senaste tambourskifte -->
+        <div class="space-y-2 bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+          <div class="flex items-center justify-between">
+            <label for="input-tambour-time" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Senaste Tambourskifte (Tid)
+            </label>
+            <span id="badge-tambour-elapsed" class="text-[11px] font-mono-num text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800/60">
+              Kört: 0 min
+            </span>
+          </div>
+
+          <div class="flex gap-2">
+            <input type="time" id="input-tambour-time" step="1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-base font-bold font-mono-num text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            <button id="btn-set-tambour-now" class="px-3.5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition" title="Sätt nuvarande klockslag">
+              <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+              <span>Sätt Nu</span>
+            </button>
+          </div>
+
+          <!-- Snabbknappar för att backa skiftestiden -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
+            <span class="text-slate-500">Backa:</span>
+            <button type="button" class="btn-offset-time px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-offset="-5">-5 min</button>
+            <button type="button" class="btn-offset-time px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-offset="-10">-10 min</button>
+            <button type="button" class="btn-offset-time px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-offset="-15">-15 min</button>
+            <button type="button" class="btn-offset-time px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-offset="-20">-20 min</button>
+            <button type="button" class="btn-offset-time px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-offset="-30">-30 min</button>
+          </div>
+        </div>
+
+        <!-- Kartongmaskinens hastighet -->
+        <div class="space-y-2 bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+          <div class="flex items-center justify-between">
+            <label for="input-speed" class="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Maskinhastighet (m/min)
+            </label>
+            <span class="text-[11px] text-amber-400 font-semibold">KM Driftfart</span>
+          </div>
+
+          <div class="relative">
+            <input type="number" id="input-speed" min="50" step="10" value="550" placeholder="T.ex. 550" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-base font-bold font-mono-num text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            <span class="absolute right-3.5 top-3 text-xs font-bold text-slate-400">m / min</span>
+          </div>
+
+          <!-- Hastigheter anpassade för Kartongmaskin (KM) -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
+            <span class="text-slate-500">KM Snabbval:</span>
+            <button type="button" class="btn-speed-preset px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-speed="350">350</button>
+            <button type="button" class="btn-speed-preset px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-speed="450">450</button>
+            <button type="button" class="btn-speed-preset px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-800/60 font-mono-num transition" data-speed="550">550</button>
+            <button type="button" class="btn-speed-preset px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-speed="650">650</button>
+            <button type="button" class="btn-speed-preset px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-speed="750">750</button>
+            <button type="button" class="btn-speed-preset px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-mono-num transition" data-speed="850">850</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+        <!-- Total körtid för hela körprogrammet -->
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 relative overflow-hidden">
+          <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider block">Total Tambourtid</span>
+          <div class="mt-1 flex items-baseline gap-1.5">
+            <span id="display-total-runtime" class="text-2xl font-black font-mono-num text-white">0 min 00 s</span>
+          </div>
+          <span id="display-total-min-decimal" class="text-[11px] font-mono-num text-slate-400 block mt-0.5">0.0 minuter vid 550 m/min</span>
+          <div class="absolute -right-2 -bottom-2 text-slate-800/30 pointer-events-none">
+            <i data-lucide="timer" class="w-14 h-14"></i>
+          </div>
+        </div>
+
+        <!-- Beräknad Sluttid / Nästa Tambourskifte -->
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-amber-900/50 relative overflow-hidden">
+          <span class="text-amber-400 text-xs font-semibold uppercase tracking-wider block">Nästa Tambourskifte</span>
+          <div class="mt-1 flex items-baseline gap-1.5">
+            <span id="display-finish-clock" class="text-2xl font-black font-mono-num text-amber-300">--:--:--</span>
+          </div>
+          <span id="display-finish-desc" class="text-[11px] font-medium text-slate-400 block mt-0.5">Senaste skifte + körtid</span>
+          <div class="absolute -right-2 -bottom-2 text-amber-950/40 pointer-events-none">
+            <i data-lucide="hourglass" class="w-14 h-14"></i>
+          </div>
+        </div>
+
+        <!-- Återstående tid just nu med nedräkning varje sekund -->
+        <div class="bg-slate-950 p-3.5 rounded-xl border border-emerald-900/50 relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-emerald-400 text-xs font-semibold uppercase tracking-wider block">Kvar till full tambour</span>
+            <span id="badge-countdown-live" class="text-[9px] uppercase font-bold px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/70 animate-pulse">LIVE</span>
+          </div>
+          <div class="mt-1 flex items-baseline gap-1.5">
+            <span id="display-time-remaining" class="text-2xl font-black font-mono-num text-emerald-300">--:--</span>
+          </div>
+          <span id="display-remaining-status" class="text-[11px] font-medium text-slate-400 block mt-0.5">Räknar ned i realtid</span>
+          <div class="absolute -right-2 -bottom-2 text-emerald-950/40 pointer-events-none">
+            <i data-lucide="activity" class="w-14 h-14"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Förloppsindikator (Progress bar i %) -->
+      <div class="space-y-1.5 pt-1">
+        <div class="flex justify-between text-xs font-medium">
+          <span class="text-slate-400">Tambourens förlopp:</span>
+          <span id="progress-percent" class="font-mono-num font-bold text-amber-400">0%</span>
+        </div>
+        <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+          <div id="progress-bar-fill" class="bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-400 h-full rounded-full transition-all duration-500 w-0"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div class="p-3.5 sm:p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+        <div>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-amber-400"></i>
+            Körprogrammets Köer
+          </h2>
+          <p class="text-xs text-slate-400">Inlästa köer och löpmeter för aktuell tambour</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400">Antal köer:</span>
+          <span id="badge-queue-total-count" class="font-mono-num font-bold text-white text-xs px-2.5 py-0.5 rounded-lg bg-slate-800 border border-slate-700">0</span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-950/80 text-slate-400 text-[11px] uppercase tracking-wider font-bold border-b border-slate-800">
+            <tr>
+              <th scope="col" class="py-3 px-4">Kö NR</th>
+              <th scope="col" class="py-3 px-4">Löpmeter</th>
+              <th scope="col" class="py-3 px-4 hidden sm:table-cell">Körtid (vid inställd fart)</th>
+              <th scope="col" class="py-3 px-4 hidden md:table-cell">Ackumulerat</th>
+              <th scope="col" class="py-3 px-4 text-right">Hantera</th>
+            </tr>
+          </thead>
+          <tbody id="queue-table-body" class="divide-y divide-slate-800/60">
+            <!-- Rader genereras dynamiskt av JavaScript. Startar helt tom! -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Summa totalt löpmeter banner -->
+      <div class="p-4 bg-slate-950 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-400">
+          Total Löpmängd på Tambouren
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-xs text-slate-500 font-medium">Totalt:</span>
+          <span id="display-total-meters" class="text-2xl sm:text-3xl font-black font-mono-num text-amber-400">0</span>
+          <span class="text-sm font-bold text-slate-300">meter</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="modal-dialog" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h3 id="modal-heading" class="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
+          <i data-lucide="edit-3" class="w-4 h-4 text-amber-400"></i>
+          <span>Redigera Körorder</span>
+        </h3>
+        <button id="btn-close-modal-x" class="text-slate-400 hover:text-white p-1">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Kö-nummer</label>
+          <input type="number" id="modal-field-queue" min="1" step="1" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-base font-bold font-mono-num text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">Löpmeter (m)</label>
+          <input type="number" id="modal-field-meters" min="1" step="1" placeholder="t.ex. 3493" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-base font-bold font-mono-num text-amber-300 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div class="pt-2 flex gap-2 justify-end">
+        <button id="btn-cancel-modal" class="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 text-xs font-bold hover:bg-slate-800 transition">
+          Avbryt
+        </button>
+        <button id="btn-save-modal" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold shadow-lg shadow-amber-600/30 transition">
+          Spara rad
+        </button>
+      </div>
+    </div>
+  </div>
+    </div>
+
+        <script>
+
         // --- Navigation Logic ---
         const mainMenu = document.getElementById('main-menu');
         const omlaggningView = document.getElementById('omlaggning-view');
@@ -580,12 +625,9 @@
             // Make sure lucide icons are rendered in this view
             lucide.createIcons();
             // Load start default values
-            if (state.queues.length === 0) {
-              state.queues.push({ queueNo: 1, meters: 3493 });
-              state.queues.push({ queueNo: 2, meters: 13988 });
-            }
+            if (app.queues.length === 0) { setTargetQueue(1); }
             renderQueueTable();
-            calculateTimes();
+            recalculateProductionTimes();
         });
 
         document.getElementById('btn-back-korprogram').addEventListener('click', () => {
@@ -595,7 +637,7 @@
             document.body.classList.remove('min-h-full', 'flex-col', 'bg-slate-950', 'text-slate-100', 'selection:bg-cyan-500', 'selection:text-white', 'h-full');
             document.documentElement.classList.remove('h-full', 'bg-slate-950', 'text-slate-100');
             document.body.classList.add('bg-gray-100', 'flex', 'items-center', 'justify-center', 'min-h-screen');
-            stopCamera();
+            if (app.cameraActive) stopCamera();
         });
 
         // --- Omläggning Logic ---
@@ -959,553 +1001,737 @@
         // Add event listener to update view when tab is opened
         document.getElementById('btn-skiftschema').addEventListener('click', updateSkiftschemaView);
 
-        // --- Körprogram Logic ---
-        const state = {
-            queues: [],
-            cameraStream: null,
-            facingMode: 'environment',
-            isScanning: false,
-            ocrWorker: null
-        };
 
-        const webcamVideo = document.getElementById('webcam-video');
-        const snapshotCanvas = document.getElementById('snapshot-canvas');
-        const previewImage = document.getElementById('preview-image');
-        const cameraPlaceholder = document.getElementById('camera-placeholder');
-        const scannerOverlay = document.getElementById('scanner-overlay');
-        const ocrLoader = document.getElementById('ocr-loader');
-        const ocrLoaderText = document.getElementById('ocr-loader-text');
-        const ocrLoaderSub = document.getElementById('ocr-loader-sub');
+        // --- Körprogram Logic (New) ---
+        // App State - Startar helt tom utan förhårdkodade köer
+            const app = {
+              queues: [], // Ingen förhårdkodad data. Startar tom!
+              targetQueue: 1, // Nästa kö vi letar efter
+              cameraActive: false,
+              stream: null,
+              ocrWorker: null,
+              ocrBusy: false,
+              scanInterval: null,
+              soundEnabled: true,
+              lastLockedTimestamp: 0,
+              editingIndex: null,
+              audioCtx: null,
+              sightMode: 'wide', // 'narrow' (smal cell) eller 'wide' (bred rad med vänster-val)
+              detectedHistory: {} // För stabilitetskontroll vid auto-read
+            };
 
-        const btnStartCamera = document.getElementById('btn-start-camera');
-        const btnCaptureScan = document.getElementById('btn-capture-scan');
-        const btnToggleCamera = document.getElementById('btn-toggle-camera');
-        const fileInput = document.getElementById('file-input');
+            // DOM-referenser
+            const videoElem = document.getElementById('camera-stream');
+            const cropCanvas = document.getElementById('crop-canvas');
+            const cameraOffState = document.getElementById('camera-off-state');
+            const scannerViewfinder = document.getElementById('scanner-viewfinder');
+            const reticleBox = document.getElementById('reticle-box');
+            const badgeReticleLeft = document.getElementById('badge-reticle-left');
+            const badgeReticleRight = document.getElementById('badge-reticle-right');
+            const scannerHintText = document.getElementById('scanner-hint-text');
+            const detectionFlash = document.getElementById('detection-flash');
+            const flashTitle = document.getElementById('flash-title');
+            const flashSub = document.getElementById('flash-sub');
 
-        const queueTableBody = document.getElementById('queue-table-body');
-        const emptyStateRow = document.getElementById('empty-state-row');
-        const displayTotalMeters = document.getElementById('display-total-meters');
-        const badgeQueueCount = document.getElementById('badge-queue-count');
+            const cameraPulse = document.getElementById('camera-pulse');
+            const cameraDot = document.getElementById('camera-dot');
+            const ocrStatusBadge = document.getElementById('ocr-status-badge');
+            const activeTargetQueue = document.getElementById('active-target-queue');
+            const targetQueueNum = document.getElementById('target-queue-num');
+            const chipsList = document.getElementById('chips-list');
 
-        const inputSpeed = document.getElementById('input-speed');
-        const btnCalculateKorprogram = document.getElementById('btn-calculate-korprogram');
-        const resTotalMinutes = document.getElementById('res-total-minutes');
-        const resFormattedTime = document.getElementById('res-formatted-time');
-        const resExactHhmm = document.getElementById('res-exact-hhmm');
-        const resFinishClock = document.getElementById('res-finish-clock');
-        const resFinishDate = document.getElementById('res-finish-date');
+            const btnPowerCamera = document.getElementById('btn-power-camera');
+            const btnToggleCamActive = document.getElementById('btn-toggle-cam-active');
+            const btnCamText = document.getElementById('btn-cam-text');
+            const btnSightNarrow = document.getElementById('btn-sight-narrow');
+            const btnSightWide = document.getElementById('btn-sight-wide');
+            const btnPrevTarget = document.getElementById('btn-prev-target');
+            const btnNextTarget = document.getElementById('btn-next-target');
+            const btnToggleSound = document.getElementById('btn-toggle-sound');
+            const soundIcon = document.getElementById('sound-icon');
+            const btnPromptReset = document.getElementById('btn-prompt-reset');
 
-        const ocrConfirmCard = document.getElementById('ocr-confirm-card');
-        const inputConfirmQueue = document.getElementById('input-confirm-queue');
-        const inputConfirmMeters = document.getElementById('input-confirm-meters');
-        const confirmQueueStatus = document.getElementById('confirm-queue-status');
-        const duplicateWarning = document.getElementById('duplicate-warning');
-        const btnSaveConfirm = document.getElementById('btn-save-confirm');
-        const btnCancelConfirm = document.getElementById('btn-cancel-confirm');
+            const inputTambourTime = document.getElementById('input-tambour-time');
+            const btnSetTambourNow = document.getElementById('btn-set-tambour-now');
+            const badgeTambourElapsed = document.getElementById('badge-tambour-elapsed');
+            const inputSpeed = document.getElementById('input-speed');
 
-        const manualModal = document.getElementById('manual-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalInputQueue = document.getElementById('modal-input-queue');
-        const modalInputMeters = document.getElementById('modal-input-meters');
-        const modalQueueHint = document.getElementById('modal-queue-hint');
-        const btnManualModal = document.getElementById('btn-manual-modal');
-        const btnCloseModal = document.getElementById('btn-close-modal');
-        const btnCancelModal = document.getElementById('btn-cancel-modal');
-        const btnSubmitModal = document.getElementById('btn-submit-modal');
-        const btnResetAll = document.getElementById('btn-reset-all');
+            const displayTotalRuntime = document.getElementById('display-total-runtime');
+            const displayTotalMinDecimal = document.getElementById('display-total-min-decimal');
+            const displayFinishClock = document.getElementById('display-finish-clock');
+            const displayTimeRemaining = document.getElementById('display-time-remaining');
+            const displayRemainingStatus = document.getElementById('display-remaining-status');
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            const progressPercent = document.getElementById('progress-percent');
 
-        const toastBanner = document.getElementById('toast-banner');
-        const toastMsg = document.getElementById('toast-msg');
-        const toastIcon = document.getElementById('toast-icon');
-        const cameraStatusDot = document.getElementById('camera-status-dot');
-        const cameraStatusCore = document.getElementById('camera-status-core');
+            const queueTableBody = document.getElementById('queue-table-body');
+            const displayTotalMeters = document.getElementById('display-total-meters');
+            const badgeQueueTotalCount = document.getElementById('badge-queue-total-count');
 
-        let editingIndex = null;
+            const modalDialog = document.getElementById('modal-dialog');
+            const modalHeading = document.getElementById('modal-heading');
+            const modalFieldQueue = document.getElementById('modal-field-queue');
+            const modalFieldMeters = document.getElementById('modal-field-meters');
+            const btnOpenManualEntry = document.getElementById('btn-open-manual-entry');
+            const btnCloseModalX = document.getElementById('btn-close-modal-x');
+            const btnCancelModal = document.getElementById('btn-cancel-modal');
+            const btnSaveModal = document.getElementById('btn-save-modal');
 
-        function showToast(message, type = 'info') {
-            toastMsg.textContent = message;
+            const toastBanner = document.getElementById('toast-banner');
+            const toastMsg = document.getElementById('toast-msg');
 
-            const toastContent = document.getElementById('toast-content');
-            if (type === 'error') {
-                toastContent.className = 'px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium border bg-rose-950 border-rose-700 text-rose-100';
-                toastIcon.className = 'w-5 h-5 text-rose-400';
-            } else if (type === 'warning') {
-                toastContent.className = 'px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium border bg-amber-950 border-amber-700 text-amber-100';
-                toastIcon.className = 'w-5 h-5 text-amber-400';
-            } else if (type === 'success') {
-                toastContent.className = 'px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium border bg-emerald-950 border-emerald-700 text-emerald-100';
-                toastIcon.className = 'w-5 h-5 text-emerald-400';
-            } else {
-                toastContent.className = 'px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium border bg-slate-900 border-slate-700 text-white';
-                toastIcon.className = 'w-5 h-5 text-cyan-400';
+            // Web Audio API för distinkt industriellt pip
+            function initAudio() {
+              if (!app.audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) {
+                  app.audioCtx = new AudioContextClass();
+                }
+              }
             }
 
-            toastBanner.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
-            toastBanner.classList.add('opacity-100', 'translate-y-0');
-
-            if (window.navigator && window.navigator.vibrate) {
-                if (type === 'error') window.navigator.vibrate([100, 50, 100]);
-                else window.navigator.vibrate(50);
-            }
-
-            setTimeout(() => {
-                toastBanner.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
-                toastBanner.classList.remove('opacity-100', 'translate-y-0');
-            }, 3500);
-        }
-
-        async function startCamera() {
-            try {
-                if (state.cameraStream) {
-                    stopCamera();
+            function playSuccessBeep() {
+              if (!app.soundEnabled) return;
+              try {
+                initAudio();
+                if (!app.audioCtx) return;
+                if (app.audioCtx.state === 'suspended') {
+                  app.audioCtx.resume();
                 }
 
+                const now = app.audioCtx.currentTime;
+                const osc = app.audioCtx.createOscillator();
+                const gain = app.audioCtx.createGain();
+
+                osc.type = 'sine';
+                // Tvåtons snabbt kvitto: 950Hz -> 1450Hz
+                osc.frequency.setValueAtTime(950, now);
+                osc.frequency.exponentialRampToValueAtTime(1450, now + 0.11);
+
+                gain.gain.setValueAtTime(0.01, now);
+                gain.gain.linearRampToValueAtTime(0.35, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+                osc.connect(gain);
+                gain.connect(app.audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.16);
+              } catch (e) {
+                console.warn('Audio feedback failed:', e);
+              }
+
+              // Haptisk vibration för mobila operatörsenheter
+              if ('vibrate' in navigator) {
+                try {
+                  navigator.vibrate([60, 40, 80]);
+                } catch (_) {}
+              }
+            }
+
+            function showNotification(message) {
+              toastMsg.textContent = message;
+              toastBanner.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-2');
+              toastBanner.classList.add('opacity-100', 'translate-y-0');
+              setTimeout(() => {
+                toastBanner.classList.add('opacity-0', 'pointer-events-none', '-translate-y-2');
+                toastBanner.classList.remove('opacity-100', 'translate-y-0');
+              }, 2600);
+            }
+
+            function setTargetQueue(queueNum) {
+              app.targetQueue = Math.max(1, queueNum);
+              activeTargetQueue.textContent = `Kö ${app.targetQueue}`;
+              targetQueueNum.textContent = app.targetQueue;
+            }
+
+            function advanceToNextTarget() {
+              const existing = app.queues.map(q => q.queueNo);
+              let next = app.targetQueue + 1;
+              while (existing.includes(next)) {
+                next++;
+              }
+              setTargetQueue(next);
+            }
+
+            function setSightMode(mode) {
+              app.sightMode = mode;
+              if (mode === 'narrow') {
+                btnSightNarrow.className = "px-2.5 py-1 rounded-lg text-xs font-bold text-amber-400 bg-slate-800 border border-slate-700 shadow-sm transition";
+                btnSightWide.className = "px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition";
+                reticleBox.className = "relative w-[45%] max-w-[200px] h-24 sm:h-28 rounded-xl border-2 border-emerald-400/90 viewfinder-mask flex flex-col justify-between p-2 overflow-hidden transition-all duration-300";
+                badgeReticleLeft.textContent = "ENDA CELL (LÖPMETER)";
+                badgeReticleRight.classList.add('hidden');
+                scannerHintText.textContent = "Håll exakt över löpmeter-rutan";
+              } else {
+                btnSightWide.className = "px-2.5 py-1 rounded-lg text-xs font-bold text-amber-400 bg-slate-800 border border-slate-700 shadow-sm transition";
+                btnSightNarrow.className = "px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition";
+                reticleBox.className = "relative w-[85%] max-w-sm h-28 sm:h-32 rounded-xl border-2 border-amber-400/90 viewfinder-mask flex flex-col justify-between p-2.5 overflow-hidden transition-all duration-300";
+                badgeReticleLeft.textContent = "1. LÖPMETER (VÄNSTER)";
+                badgeReticleRight.textContent = "2. DIA (HÖGER)";
+                badgeReticleRight.classList.remove('hidden');
+                scannerHintText.textContent = "Rikta mot raden (tar automatiskt vänster ruta)";
+              }
+            }
+
+            btnSightNarrow.addEventListener('click', () => setSightMode('narrow'));
+            btnSightWide.addEventListener('click', () => setSightMode('wide'));
+
+            async function initOCRWorker() {
+              if (app.ocrWorker) return;
+              try {
+                ocrStatusBadge.textContent = "Laddar OCR-motor...";
+                const worker = await Tesseract.createWorker('eng');
+                await worker.setParameters({
+                  tessedit_char_whitelist: '0123456789',
+                  tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK
+                });
+                app.ocrWorker = worker;
+                ocrStatusBadge.textContent = "OCR Redo";
+              } catch (err) {
+                console.error("Fel vid laddning av OCR:", err);
+                ocrStatusBadge.textContent = "OCR-fel";
+              }
+            }
+
+            async function startCamera() {
+              try {
+                initAudio();
+                await initOCRWorker();
+
                 const constraints = {
-                    video: {
-                        facingMode: state.facingMode,
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
-                    }
+                  video: {
+                    facingMode: { ideal: 'environment' },
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 }
+                  }
                 };
 
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                state.cameraStream = stream;
-                webcamVideo.srcObject = stream;
-                webcamVideo.classList.remove('hidden');
-                previewImage.classList.add('hidden');
-                cameraPlaceholder.classList.add('hidden');
-                scannerOverlay.classList.remove('hidden');
-                btnCaptureScan.disabled = false;
-                btnToggleCamera.classList.remove('hidden');
+                app.stream = stream;
+                videoElem.srcObject = stream;
+                await videoElem.play();
 
-                cameraStatusDot.classList.remove('hidden');
-                cameraStatusCore.classList.remove('bg-slate-500');
-                cameraStatusCore.classList.add('bg-cyan-400');
+                app.cameraActive = true;
+                videoElem.classList.remove('hidden');
+                cameraOffState.classList.add('hidden');
+                scannerViewfinder.classList.remove('hidden');
 
-                showToast('Kamera aktiverad. Rikta mot skärmen.', 'info');
-            } catch (err) {
-                console.error('Kamerafel:', err);
-                showToast('Kunde inte starta kameran. Kontrollera behörigheter.', 'error');
+                cameraPulse.classList.remove('hidden');
+                cameraDot.classList.remove('bg-slate-600');
+                cameraDot.classList.add('bg-emerald-400');
+                btnCamText.textContent = "Stoppa";
+                ocrStatusBadge.textContent = "Skannar realtid...";
+
+                if (app.scanInterval) clearInterval(app.scanInterval);
+                app.scanInterval = setInterval(performContinuousScan, 420);
+
+                showNotification("Kameran igång! Rikta mot löpmeter på KM-skärmen.");
+              } catch (err) {
+                console.error("Kamerafel:", err);
+                showNotification("Kunde inte starta kameran. Kontrollera behörighet.");
+                stopCamera();
+              }
             }
-        }
 
-        function stopCamera() {
-            if (state.cameraStream) {
-                state.cameraStream.getTracks().forEach(track => track.stop());
-                state.cameraStream = null;
+            function stopCamera() {
+              if (app.scanInterval) {
+                clearInterval(app.scanInterval);
+                app.scanInterval = null;
+              }
+              if (app.stream) {
+                app.stream.getTracks().forEach(track => track.stop());
+                app.stream = null;
+              }
+              app.cameraActive = false;
+              videoElem.classList.add('hidden');
+              scannerViewfinder.classList.add('hidden');
+              cameraOffState.classList.remove('hidden');
+
+              cameraPulse.classList.add('hidden');
+              cameraDot.classList.remove('bg-emerald-400');
+              cameraDot.classList.add('bg-slate-600');
+              btnCamText.textContent = "Starta";
+              ocrStatusBadge.textContent = "Avstängd";
+              chipsList.innerHTML = `<span class="text-xs text-slate-600 italic">Kameran är avstängd</span>`;
             }
-            webcamVideo.classList.add('hidden');
-            scannerOverlay.classList.add('hidden');
-            cameraPlaceholder.classList.remove('hidden');
-            btnCaptureScan.disabled = true;
-            btnToggleCamera.classList.add('hidden');
 
-            cameraStatusDot.classList.add('hidden');
-            cameraStatusCore.classList.remove('bg-cyan-400');
-            cameraStatusCore.classList.add('bg-slate-500');
-        }
+            function capturePreprocessedFrame() {
+              const vidW = videoElem.videoWidth;
+              const vidH = videoElem.videoHeight;
+              if (!vidW || !vidH) return null;
 
-        btnToggleCamera.addEventListener('click', () => {
-            state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
-            startCamera();
-        });
+              // Anpassa bredd utifrån siktläge (Smal cell vs Bred rad)
+              const isNarrow = app.sightMode === 'narrow';
+              const cropW = Math.floor(vidW * (isNarrow ? 0.38 : 0.68));
+              const cropH = Math.floor(vidH * (isNarrow ? 0.22 : 0.26));
+              const cropX = Math.floor((vidW - cropW) / 2);
+              const cropY = Math.floor((vidH - cropH) / 2);
 
-        btnStartCamera.addEventListener('click', startCamera);
+              cropCanvas.width = cropW;
+              cropCanvas.height = cropH;
+              const ctx = cropCanvas.getContext('2d', { willReadFrequently: true });
 
-        function captureCroppedCanvas() {
-            const videoWidth = webcamVideo.videoWidth || 1280;
-            const videoHeight = webcamVideo.videoHeight || 720;
+              ctx.drawImage(videoElem, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
-            const cropW = Math.floor(videoWidth * 0.85);
-            const cropH = Math.floor(videoHeight * 0.40);
-            const cropX = Math.floor((videoWidth - cropW) / 2);
-            const cropY = Math.floor((videoHeight - cropH) / 2);
-
-            const canvas = document.createElement('canvas');
-            canvas.width = cropW;
-            canvas.height = cropH;
-            const ctx = canvas.getContext('2d');
-
-            ctx.drawImage(webcamVideo, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-
-            const imgData = ctx.getImageData(0, 0, cropW, cropH);
-            const data = imgData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                const avg = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                const enhanced = avg > 140 ? 255 : (avg < 80 ? 0 : avg);
-                data[i] = enhanced;
-                data[i + 1] = enhanced;
-                data[i + 2] = enhanced;
+              // Bildbehandling: Gråskala och skarp kontrasttröskel för att avläsa ljusblå rader
+              const imgData = ctx.getImageData(0, 0, cropW, cropH);
+              const d = imgData.data;
+              for (let i = 0; i < d.length; i += 4) {
+                const gray = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+                const val = gray < 130 ? 0 : 255;
+                d[i] = val;
+                d[i + 1] = val;
+                d[i + 2] = val;
+              }
+              ctx.putImageData(imgData, 0, 0);
+              return cropCanvas;
             }
-            ctx.putImageData(imgData, 0, 0);
-            return canvas;
-        }
 
-        async function runOCR(imageSource) {
-            ocrLoader.classList.remove('hidden');
-            ocrLoaderText.textContent = "Bearbetar och läser siffror...";
-            ocrLoaderSub.textContent = "Tesseract OCR analyserar...";
+            async function performContinuousScan() {
+              if (!app.cameraActive || app.ocrBusy || !app.ocrWorker) return;
+              if (Date.now() - app.lastLockedTimestamp < 1200) return;
 
-            try {
-                const result = await Tesseract.recognize(
-                    imageSource,
-                    'eng',
-                    {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                const pct = Math.round(m.progress * 100);
-                                ocrLoaderSub.textContent = `Avläser text: ${pct}%`;
-                            }
-                        }
-                    }
-                );
+              const canvas = capturePreprocessedFrame();
+              if (!canvas) return;
 
-                const text = result.data.text;
-                console.log("OCR Result Text:\n", text);
-                parseNumbersFromOCR(text);
+              app.ocrBusy = true;
+              try {
+                const result = await app.ocrWorker.recognize(canvas);
+                const words = (result.data.words || [])
+                  .map(w => ({
+                    num: parseInt(w.text.replace(/[^0-9]/g, ''), 10),
+                    raw: w.text.replace(/[^0-9]/g, ''),
+                    x: w.bbox ? w.bbox.x0 : 0
+                  }))
+                  .filter(w => !isNaN(w.num) && w.num >= 100);
 
-            } catch (err) {
-                console.error("OCR Fel:", err);
-                showToast("Kunde inte läsa texten. Försök igen eller mata in manuellt.", "error");
-            } finally {
-                ocrLoader.classList.add('hidden');
+                evaluateSpatialNumbers(words, result.data.text || '');
+              } catch (e) {
+                console.warn("Scan frame error:", e);
+              } finally {
+                app.ocrBusy = false;
+              }
             }
-        }
 
-        function parseNumbersFromOCR(text) {
-            const cleanText = text.replace(/,/g, '').replace(/\./g, ' ');
-            const tokens = cleanText.split(/\s+/).map(t => t.trim()).filter(Boolean);
-
-            const numbers = [];
-            tokens.forEach(tok => {
-                const num = parseInt(tok, 10);
-                if (!isNaN(num) && num > 0) {
-                    numbers.push(num);
+            function evaluateSpatialNumbers(words, rawText) {
+              if (words.length === 0) {
+                // Fallback: kontrollera regex i råtext
+                const matches = (rawText.match(/\b\d{3,6}\b/g) || []).map(m => parseInt(m, 10));
+                if (matches.length > 0) {
+                  renderInteractiveChips([{ num: matches[0], role: 'detected', label: 'Hittat tal' }]);
+                  checkAutoCapture(matches[0]);
                 }
-            });
+                return;
+              }
 
-            const existingQueueNums = state.queues.map(q => q.queueNo);
-            let nextExpectedQueue = 1;
-            while (existingQueueNums.includes(nextExpectedQueue)) {
-                nextExpectedQueue++;
-            }
+              // Geometrisk spatial regel: Sortera orden från vänster till höger (stigande X-koordinat)
+              words.sort((a, b) => a.x - b.x);
 
-            let detectedQueue = nextExpectedQueue;
-            let detectedMeters = null;
+              // Om 2 eller fler siffror fångas i samma horisontella sikte:
+              // Index 0 är VÄNSTER (Löpmeter), Index 1+ är HÖGER (Dia / Max Diam)
+              let classifiedList = [];
 
-            const plausibleMeters = numbers.filter(n => n >= 500 && n <= 100000);
-            const smallNumbers = numbers.filter(n => n >= 1 && n <= 50);
-
-            if (smallNumbers.length > 0) {
-                const matchNext = smallNumbers.find(n => n === nextExpectedQueue);
-                if (matchNext) {
-                    detectedQueue = matchNext;
-                } else {
-                    detectedQueue = smallNumbers[0];
+              if (words.length === 1) {
+                classifiedList.push({
+                  num: words[0].num,
+                  role: 'lopmeter',
+                  label: 'Löpmeter'
+                });
+              } else {
+                // Första talet är Löpmeter
+                classifiedList.push({
+                  num: words[0].num,
+                  role: 'lopmeter',
+                  label: 'Löpmeter (vänster)'
+                });
+                // Efterföljande tal är Diameter / Annat
+                for (let i = 1; i < words.length; i++) {
+                  classifiedList.push({
+                    num: words[i].num,
+                    role: 'diameter',
+                    label: i === 1 ? 'Dia (höger)' : 'Övrigt'
+                  });
                 }
+              }
+
+              // Rendera klickbara live-chips så operatören har 100% visuell kontroll
+              renderInteractiveChips(classifiedList);
+
+              // Automatisk inläsning av det vänstra talet (Löpmeter)
+              const chosenLopmeter = classifiedList.find(c => c.role === 'lopmeter');
+              if (chosenLopmeter) {
+                checkAutoCapture(chosenLopmeter.num);
+              }
             }
 
-            if (plausibleMeters.length > 0) {
-                detectedMeters = plausibleMeters[plausibleMeters.length - 1];
-            } else {
-                detectedMeters = numbers.length > 1 ? numbers[1] : 3493;
-            }
-
-            openConfirmCard(detectedQueue, detectedMeters);
-        }
-
-        function checkDuplicateQueue(queueNo) {
-            return state.queues.some(q => q.queueNo === queueNo);
-        }
-
-        function openConfirmCard(queueNo, meters) {
-            inputConfirmQueue.value = queueNo;
-            inputConfirmMeters.value = meters || '';
-
-            updateDuplicateStatus(queueNo);
-
-            ocrConfirmCard.classList.remove('hidden');
-            ocrConfirmCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            showToast(`Data avläst: Kö ${queueNo}, ${meters || 0} m. Kontrollera innan du sparar!`, 'info');
-        }
-
-        function updateDuplicateStatus(queueNo) {
-            const isDuplicate = checkDuplicateQueue(Number(queueNo));
-            if (isDuplicate) {
-                duplicateWarning.classList.remove('hidden');
-                confirmQueueStatus.innerHTML = `<span class="text-amber-400 font-bold">Observera: Kö ${queueNo} är redan inlagd!</span>`;
-            } else {
-                duplicateWarning.classList.add('hidden');
-                confirmQueueStatus.textContent = `Registreras som ny kö.`;
-            }
-        }
-
-        inputConfirmQueue.addEventListener('input', (e) => {
-            updateDuplicateStatus(e.target.value);
-        });
-
-        btnCancelConfirm.addEventListener('click', () => {
-            ocrConfirmCard.classList.add('hidden');
-        });
-
-        btnSaveConfirm.addEventListener('click', () => {
-            const qNo = parseInt(inputConfirmQueue.value, 10);
-            const meters = parseInt(inputConfirmMeters.value, 10);
-
-            if (isNaN(qNo) || qNo <= 0) {
-                showToast('Ange ett giltigt Kö-nummer.', 'error');
+            function renderInteractiveChips(list) {
+              if (!list || list.length === 0) {
+                chipsList.innerHTML = `<span class="text-xs text-slate-600 italic">Väntar på siffror i siktet...</span>`;
                 return;
+              }
+
+              chipsList.innerHTML = '';
+              list.forEach(item => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = item.role === 'lopmeter'
+                  ? "px-3 py-1.5 rounded-xl bg-emerald-950/90 text-emerald-300 border border-emerald-600/80 font-mono-num font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition hover:bg-emerald-900"
+                  : "px-2.5 py-1 rounded-xl bg-slate-900 text-slate-400 border border-slate-700 font-mono-num font-medium text-xs flex items-center gap-1.5 hover:bg-slate-800 transition";
+
+                const iconHtml = item.role === 'lopmeter'
+                  ? `<i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>`
+                  : `<i data-lucide="info" class="w-3 h-3 text-slate-500"></i>`;
+
+                btn.innerHTML = `${iconHtml} <span>${item.num.toLocaleString('sv-SE')} m</span> <span class="text-[10px] opacity-75 font-sans">(${item.label})</span>`;
+
+                // Klick på ett chip sparar det direkt oavsett om det är vänster eller höger!
+                btn.addEventListener('click', () => {
+                  lockInScannedQueue(app.targetQueue, item.num);
+                });
+
+                chipsList.appendChild(btn);
+              });
+              lucide.createIcons();
             }
-            if (isNaN(meters) || meters <= 0) {
-                showToast('Ange ett giltigt antal löpmeter.', 'error');
+
+            function checkAutoCapture(val) {
+              // Dubblettskydd: Om aktiv kö redan har exakt detta värde, gör inget
+              const existingQueue = app.queues.find(q => q.queueNo === app.targetQueue);
+              if (existingQueue && existingQueue.meters === val) {
                 return;
+              }
+
+              // Stabilitetskontroll: Värdet måste ses i 2 mätcykler i rad för att undvika flimmer
+              const hist = app.detectedHistory[app.targetQueue] || { val: 0, count: 0 };
+              if (hist.val === val) {
+                hist.count++;
+              } else {
+                hist.val = val;
+                hist.count = 1;
+              }
+              app.detectedHistory[app.targetQueue] = hist;
+
+              if (hist.count >= 2) {
+                lockInScannedQueue(app.targetQueue, val);
+                app.detectedHistory[app.targetQueue] = { val: 0, count: 0 };
+              }
             }
 
-            const existingIdx = state.queues.findIndex(q => q.queueNo === qNo);
-            if (existingIdx !== -1) {
-                state.queues[existingIdx].meters = meters;
-                showToast(`Kö ${qNo} uppdaterades med ${meters.toLocaleString('sv-SE')} m.`, 'success');
-            } else {
-                state.queues.push({ queueNo: qNo, meters });
-                state.queues.sort((a, b) => a.queueNo - b.queueNo);
-                showToast(`Kö ${qNo} (${meters.toLocaleString('sv-SE')} m) har lagts till!`, 'success');
+            function lockInScannedQueue(queueNo, meters) {
+              app.lastLockedTimestamp = Date.now();
+
+              // Uppdatera eller lägg till i kön
+              const idx = app.queues.findIndex(q => q.queueNo === queueNo);
+              if (idx !== -1) {
+                app.queues[idx].meters = meters;
+              } else {
+                app.queues.push({ queueNo, meters });
+                app.queues.sort((a, b) => a.queueNo - b.queueNo);
+              }
+
+              playSuccessBeep();
+
+              // Visuell kvittens
+              flashTitle.textContent = `Kö ${queueNo} Registrerad`;
+              flashSub.textContent = `${meters.toLocaleString('sv-SE')} m`;
+              detectionFlash.classList.remove('opacity-0');
+              detectionFlash.classList.add('opacity-100');
+              setTimeout(() => {
+                detectionFlash.classList.remove('opacity-100');
+                detectionFlash.classList.add('opacity-0');
+              }, 700);
+
+              showNotification(`Låste in Kö ${queueNo}: ${meters.toLocaleString('sv-SE')} m`);
+
+              // Stega automatiskt till nästa kö
+              advanceToNextTarget();
+
+              renderQueueTable();
+              recalculateProductionTimes();
             }
 
-            ocrConfirmCard.classList.add('hidden');
-            renderQueueTable();
-            calculateTimes();
-        });
+            function renderQueueTable() {
+              queueTableBody.innerHTML = '';
+              badgeQueueTotalCount.textContent = app.queues.length;
 
-        btnCaptureScan.addEventListener('click', () => {
-            if (!state.cameraStream) return;
-            const canvas = captureCroppedCanvas();
-            runOCR(canvas);
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    previewImage.src = img.src;
-                    previewImage.classList.remove('hidden');
-                    cameraPlaceholder.classList.add('hidden');
-                    webcamVideo.classList.add('hidden');
-                    scannerOverlay.classList.add('hidden');
-                    runOCR(img);
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-
-        function renderQueueTable() {
-            queueTableBody.innerHTML = '';
-
-            if (state.queues.length === 0) {
-                queueTableBody.appendChild(emptyStateRow);
+              if (app.queues.length === 0) {
+                queueTableBody.innerHTML = `
+                  <tr>
+                    <td colspan="5" class="py-10 text-center text-slate-500">
+                      <i data-lucide="layers" class="w-9 h-9 mx-auto text-slate-700 mb-2 stroke-1"></i>
+                      <p class="text-xs font-semibold text-slate-400">Körprogrammet är tomt</p>
+                      <p class="text-[11px] text-slate-600 mt-0.5">Starta auto-skannern för att läsa in Kö 1 eller tryck "Lägg till manuellt"</p>
+                    </td>
+                  </tr>
+                `;
                 displayTotalMeters.textContent = '0';
-                badgeQueueCount.textContent = '0 st';
+                lucide.createIcons();
                 return;
-            }
+              }
 
-            const totalMeters = state.queues.reduce((sum, q) => sum + q.meters, 0);
-            displayTotalMeters.textContent = totalMeters.toLocaleString('sv-SE');
-            badgeQueueCount.textContent = `${state.queues.length} st`;
+              const speed = parseFloat(inputSpeed.value) || 550;
+              let runningTotal = 0;
 
-            state.queues.forEach((item, index) => {
-                const percent = totalMeters > 0 ? Math.round((item.meters / totalMeters) * 100) : 0;
+              app.queues.forEach((q, index) => {
+                runningTotal += q.meters;
+                const qMinutes = (q.meters / speed);
+                const qMin = Math.floor(qMinutes);
+                const qSec = Math.round((qMinutes - qMin) * 60);
+                const pad = (n) => String(n).padStart(2, '0');
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-800/40 transition border-b border-slate-800/50";
-
                 tr.innerHTML = `
-                    <td class="py-3 px-4 font-mono-num font-bold text-white flex items-center gap-2">
-                        <span class="w-7 h-7 rounded-lg bg-cyan-950 border border-cyan-800 flex items-center justify-center text-cyan-400 text-xs font-bold">
-                            ${item.queueNo}
-                        </span>
-                        <span>Kö ${item.queueNo}</span>
-                    </td>
-                    <td class="py-3 px-4 font-mono-num text-cyan-300 font-semibold text-base">
-                        ${item.meters.toLocaleString('sv-SE')} <span class="text-xs text-slate-400 font-normal">m</span>
-                    </td>
-                    <td class="py-3 px-4 hidden sm:table-cell">
-                        <div class="flex items-center gap-2">
-                            <div class="w-16 bg-slate-800 h-2 rounded-full overflow-hidden">
-                                <div class="bg-cyan-500 h-full rounded-full" style="width: ${percent}%"></div>
-                            </div>
-                            <span class="text-xs font-mono-num text-slate-400">${percent}%</span>
-                        </div>
-                    </td>
-                    <td class="py-3 px-4 text-right">
-                        <div class="inline-flex gap-1.5">
-                            <button onclick="editQueueRow(${index})" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Redigera">
-                                <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                            </button>
-                            <button onclick="deleteQueueRow(${index})" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/70 hover:text-rose-300 text-slate-400 transition" title="Ta bort">
-                                <i data-lucide="trash" class="w-3.5 h-3.5"></i>
-                            </button>
-                        </div>
-                    </td>
+                  <td class="py-2.5 px-4 font-mono-num font-bold text-white flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-md bg-amber-950/80 border border-amber-800/60 flex items-center justify-center text-amber-400 text-xs font-extrabold">
+                      ${q.queueNo}
+                    </span>
+                    <span class="text-xs">Kö ${q.queueNo}</span>
+                  </td>
+                  <td class="py-2.5 px-4 font-mono-num text-amber-300 font-bold text-sm">
+                    ${q.meters.toLocaleString('sv-SE')} <span class="text-[11px] text-slate-400 font-normal">m</span>
+                  </td>
+                  <td class="py-2.5 px-4 hidden sm:table-cell font-mono-num text-xs text-slate-300">
+                    ${qMin} min ${pad(qSec)} s
+                  </td>
+                  <td class="py-2.5 px-4 hidden md:table-cell font-mono-num text-xs text-slate-400">
+                    ${runningTotal.toLocaleString('sv-SE')} m
+                  </td>
+                  <td class="py-2.5 px-4 text-right">
+                    <div class="inline-flex gap-1.5">
+                      <button onclick="editQueueItem(${index})" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition" title="Redigera">
+                        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button onclick="deleteQueueItem(${index})" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 transition" title="Ta bort">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </td>
                 `;
                 queueTableBody.appendChild(tr);
+              });
+
+              displayTotalMeters.textContent = runningTotal.toLocaleString('sv-SE');
+              lucide.createIcons();
+            }
+
+            window.deleteQueueItem = function(index) {
+              const removed = app.queues.splice(index, 1);
+              if (removed.length > 0) {
+                showNotification(`Kö ${removed[0].queueNo} togs bort.`);
+              }
+              renderQueueTable();
+              recalculateProductionTimes();
+            };
+
+            window.editQueueItem = function(index) {
+              app.editingIndex = index;
+              const q = app.queues[index];
+              modalHeading.innerHTML = `<i data-lucide="edit-3" class="w-4 h-4 text-amber-400"></i> Redigera Kö ${q.queueNo}`;
+              modalFieldQueue.value = q.queueNo;
+              modalFieldMeters.value = q.meters;
+              modalDialog.classList.remove('hidden');
+              lucide.createIcons();
+            };
+
+            function setTambourToNow() {
+              const now = new Date();
+              const pad = (n) => String(n).padStart(2, '0');
+              inputTambourTime.value = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+              recalculateProductionTimes();
+              showNotification("Tambourskifte satt till aktuell tid!");
+            }
+
+            function offsetTambourTime(offsetMinutes) {
+              const currentTimeVal = inputTambourTime.value;
+              let dateObj = new Date();
+              if (currentTimeVal) {
+                const parts = currentTimeVal.split(':');
+                dateObj.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), parts[2] ? parseInt(parts[2], 10) : 0);
+              }
+              dateObj = new Date(dateObj.getTime() + offsetMinutes * 60000);
+              const pad = (n) => String(n).padStart(2, '0');
+              inputTambourTime.value = `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+              recalculateProductionTimes();
+            }
+
+            function recalculateProductionTimes() {
+              const totalMeters = app.queues.reduce((acc, q) => acc + q.meters, 0);
+              const speed = parseFloat(inputSpeed.value) || 0;
+
+              if (totalMeters === 0 || speed <= 0) {
+                displayTotalRuntime.textContent = "0 min 00 s";
+                displayTotalMinDecimal.textContent = `0.0 minuter vid ${speed} m/min`;
+                displayFinishClock.textContent = "--:--:--";
+                displayTimeRemaining.textContent = "--:--";
+                displayRemainingStatus.textContent = "Ingen körorder inlagd";
+                badgeTambourElapsed.textContent = "Kört: 0 min";
+                progressPercent.textContent = "0%";
+                progressBarFill.style.width = "0%";
+                return;
+              }
+
+              // Total körtid i sekunder: (Löpmeter / Maskinhastighet m/min) * 60
+              const totalSeconds = Math.round((totalMeters / speed) * 60);
+              const totalMinutesDecimal = (totalMeters / speed).toFixed(1);
+
+              const runMin = Math.floor(totalSeconds / 60);
+              const runSec = totalSeconds % 60;
+              const pad = (n) => String(n).padStart(2, '0');
+              displayTotalRuntime.textContent = `${runMin} min ${pad(runSec)} s`;
+              displayTotalMinDecimal.textContent = `${totalMinutesDecimal} minuter vid ${speed} m/min`;
+
+              // Hämta klockslag för senaste tambourskifte
+              const tambourTimeVal = inputTambourTime.value;
+              if (!tambourTimeVal) return;
+
+              const now = new Date();
+              const [tH, tM, tS] = tambourTimeVal.split(':').map(v => parseInt(v || 0, 10));
+
+              const tambourDate = new Date();
+              tambourDate.setHours(tH, tM, tS || 0, 0);
+
+              // Om skiftet skedde precis innan midnatt
+              if (tambourDate.getTime() > now.getTime() + 60000) {
+                tambourDate.setDate(tambourDate.getDate() - 1);
+              }
+
+              // Sluttid = Skiftesklockslag + körtid
+              const finishDate = new Date(tambourDate.getTime() + totalSeconds * 1000);
+              displayFinishClock.textContent = `${pad(finishDate.getHours())}:${pad(finishDate.getMinutes())}:${pad(finishDate.getSeconds())}`;
+
+              // Återstående tid från nuvarande sekund
+              const remainingMs = finishDate.getTime() - now.getTime();
+              const remainingTotalSec = Math.round(remainingMs / 1000);
+
+              // Förfluten tid sedan skiftet
+              const elapsedMs = now.getTime() - tambourDate.getTime();
+              const elapsedSec = Math.max(0, Math.round(elapsedMs / 1000));
+              badgeTambourElapsed.textContent = `Kört: ${Math.floor(elapsedSec / 60)} min`;
+
+              // Progress bar (0 - 100%)
+              const progressFraction = Math.min(1, Math.max(0, elapsedSec / totalSeconds));
+              const progressPctVal = Math.round(progressFraction * 100);
+              progressPercent.textContent = `${progressPctVal}%`;
+              progressBarFill.style.width = `${progressPctVal}%`;
+
+              if (remainingTotalSec <= 0) {
+                displayTimeRemaining.textContent = "TAMBOUR KLAR!";
+                displayTimeRemaining.className = "text-xl sm:text-2xl font-black font-mono-num text-emerald-400 ring-active";
+                displayRemainingStatus.textContent = "Dags för tambourskifte";
+              } else {
+                const remMin = Math.floor(remainingTotalSec / 60);
+                const remSec = remainingTotalSec % 60;
+                displayTimeRemaining.textContent = `${remMin} min ${pad(remSec)} s`;
+                displayTimeRemaining.className = "text-2xl font-black font-mono-num text-emerald-300";
+                displayRemainingStatus.textContent = `Kvar till tambourskifte`;
+              }
+            }
+
+            btnPowerCamera.addEventListener('click', startCamera);
+            btnToggleCamActive.addEventListener('click', () => {
+              if (app.cameraActive) {
+                stopCamera();
+              } else {
+                startCamera();
+              }
             });
 
-            lucide.createIcons();
-        }
+            btnSetTambourNow.addEventListener('click', setTambourToNow);
+            document.querySelectorAll('.btn-offset-time').forEach(b => {
+              b.addEventListener('click', () => offsetTambourTime(parseInt(b.dataset.offset, 10)));
+            });
 
-        window.deleteQueueRow = function(index) {
-            const removed = state.queues.splice(index, 1);
-            if (removed.length > 0) {
-                showToast(`Kö ${removed[0].queueNo} raderades.`, 'info');
-            }
-            renderQueueTable();
-            calculateTimes();
-        };
+            document.querySelectorAll('.btn-speed-preset').forEach(b => {
+              b.addEventListener('click', () => {
+                inputSpeed.value = b.dataset.speed;
+                recalculateProductionTimes();
+                renderQueueTable();
+              });
+            });
 
-        window.editQueueRow = function(index) {
-            editingIndex = index;
-            const item = state.queues[index];
-            modalTitle.innerHTML = `<i data-lucide="pencil" class="w-4 h-4 text-cyan-400"></i> Redigera Kö ${item.queueNo}`;
-            modalInputQueue.value = item.queueNo;
-            modalInputMeters.value = item.meters;
-            modalQueueHint.textContent = `Redigerar befintlig post`;
-            manualModal.classList.remove('hidden');
-            lucide.createIcons();
-        };
+            inputSpeed.addEventListener('input', () => {
+              recalculateProductionTimes();
+              renderQueueTable();
+            });
+            inputTambourTime.addEventListener('change', recalculateProductionTimes);
 
-        btnManualModal.addEventListener('click', () => {
-            editingIndex = null;
-            modalTitle.innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i> Lägg till Körorder Manuellt`;
+            btnPrevTarget.addEventListener('click', () => setTargetQueue(app.targetQueue - 1));
+            btnNextTarget.addEventListener('click', () => setTargetQueue(app.targetQueue + 1));
 
-            const existingNums = state.queues.map(q => q.queueNo);
-            let nextNum = 1;
-            while (existingNums.includes(nextNum)) {
-                nextNum++;
-            }
-            modalInputQueue.value = nextNum;
-            modalInputMeters.value = '';
-            modalQueueHint.textContent = `Föreslaget nästa nummer är Kö ${nextNum}`;
-            manualModal.classList.remove('hidden');
-            modalInputMeters.focus();
-            lucide.createIcons();
-        });
+            btnToggleSound.addEventListener('click', () => {
+              app.soundEnabled = !app.soundEnabled;
+              if (app.soundEnabled) {
+                soundIcon.className = "w-4 h-4 text-cyan-400";
+                showNotification("Ljudsignal aktiverad");
+                initAudio();
+                playSuccessBeep();
+              } else {
+                soundIcon.className = "w-4 h-4 text-slate-500";
+                showNotification("Ljudsignal avstängd");
+              }
+            });
 
-        function closeModal() {
-            manualModal.classList.add('hidden');
-            editingIndex = null;
-        }
-
-        btnCloseModal.addEventListener('click', closeModal);
-        btnCancelModal.addEventListener('click', closeModal);
-
-        btnSubmitModal.addEventListener('click', () => {
-            const qNo = parseInt(modalInputQueue.value, 10);
-            const meters = parseInt(modalInputMeters.value, 10);
-
-            if (isNaN(qNo) || qNo <= 0) {
-                showToast('Ange ett giltigt Kö-nummer.', 'error');
+            // Nollställ körprogram / Ny tambour
+            btnPromptReset.addEventListener('click', () => {
+              if (app.queues.length === 0) {
+                showNotification("Körprogrammet är redan tomt.");
                 return;
-            }
-            if (isNaN(meters) || meters <= 0) {
-                showToast('Ange ett giltigt antal löpmeter.', 'error');
-                return;
-            }
+              }
+              app.queues = [];
+              setTargetQueue(1);
+              renderQueueTable();
+              recalculateProductionTimes();
+              showNotification("Körprogrammet tömt för ny tambour.");
+            });
 
-            if (editingIndex !== null) {
-                state.queues[editingIndex].queueNo = qNo;
-                state.queues[editingIndex].meters = meters;
-                showToast(`Kö ${qNo} har uppdaterats!`, 'success');
-            } else {
-                if (checkDuplicateQueue(qNo)) {
-                    showToast(`Kö ${qNo} finns redan i listan! Välj ett annat nummer eller redigera den.`, 'warning');
-                    return;
+            // Manuell inmatning
+            btnOpenManualEntry.addEventListener('click', () => {
+              app.editingIndex = null;
+              modalHeading.innerHTML = `<i data-lucide="plus-circle" class="w-4 h-4 text-amber-400"></i> Lägg till Körorder`;
+              modalFieldQueue.value = app.targetQueue;
+              modalFieldMeters.value = '';
+              modalDialog.classList.remove('hidden');
+              modalFieldMeters.focus();
+              lucide.createIcons();
+            });
+
+            const closeModal = () => modalDialog.classList.add('hidden');
+            btnCloseModalX.addEventListener('click', closeModal);
+            btnCancelModal.addEventListener('click', closeModal);
+
+            btnSaveModal.addEventListener('click', () => {
+              const q = parseInt(modalFieldQueue.value, 10);
+              const m = parseInt(modalFieldMeters.value, 10);
+              if (isNaN(q) || q <= 0 || isNaN(m) || m <= 0) {
+                showNotification("Vänligen ange giltiga siffror.");
+                return;
+              }
+
+              if (app.editingIndex !== null) {
+                app.queues[app.editingIndex].queueNo = q;
+                app.queues[app.editingIndex].meters = m;
+                showNotification(`Kö ${q} uppdaterad!`);
+              } else {
+                const existIdx = app.queues.findIndex(item => item.queueNo === q);
+                if (existIdx !== -1) {
+                  app.queues[existIdx].meters = m;
+                  showNotification(`Kö ${q} uppdaterad med ${m} m!`);
+                } else {
+                  app.queues.push({ queueNo: q, meters: m });
+                  app.queues.sort((a, b) => a.queueNo - b.queueNo);
+                  showNotification(`Kö ${q} tillagd!`);
                 }
-                state.queues.push({ queueNo: qNo, meters });
-                state.queues.sort((a, b) => a.queueNo - b.queueNo);
-                showToast(`Kö ${qNo} tillagd med ${meters.toLocaleString('sv-SE')} m.`, 'success');
-            }
+                advanceToNextTarget();
+              }
 
-            closeModal();
-            renderQueueTable();
-            calculateTimes();
-        });
-
-        btnResetAll.addEventListener('click', () => {
-            if (state.queues.length === 0) return;
-            state.queues = [];
-            renderQueueTable();
-            calculateTimes();
-            showToast('Alla köer har rensats.', 'info');
-        });
-
-        document.querySelectorAll('.speed-pill').forEach(btn => {
-            btn.addEventListener('click', () => {
-                inputSpeed.value = btn.dataset.speed;
-                calculateTimes();
+              closeModal();
+              renderQueueTable();
+              recalculateProductionTimes();
             });
-        });
 
-        inputSpeed.addEventListener('input', calculateTimes);
-        btnCalculateKorprogram.addEventListener('click', () => {
-            calculateTimes();
-            showToast('Körtid omräknad!', 'success');
-        });
 
-        function calculateTimes() {
-            const totalMeters = state.queues.reduce((sum, q) => sum + q.meters, 0);
-            const speed = parseFloat(inputSpeed.value);
-
-            if (!speed || speed <= 0 || totalMeters <= 0) {
-                resTotalMinutes.textContent = '0.0';
-                resFormattedTime.textContent = '0 tim 0 min';
-                resExactHhmm.textContent = '00:00:00';
-                resFinishClock.textContent = '--:--';
-                resFinishDate.textContent = 'Vid start nu';
-                return;
-            }
-
-            const totalMinutesDecimal = totalMeters / speed;
-            const totalSecondsTotal = Math.round(totalMinutesDecimal * 60);
-
-            const hours = Math.floor(totalSecondsTotal / 3600);
-            const minutes = Math.floor((totalSecondsTotal % 3600) / 60);
-            const seconds = totalSecondsTotal % 60;
-
-            resTotalMinutes.textContent = totalMinutesDecimal.toFixed(1);
-            resFormattedTime.textContent = `${hours} tim ${minutes} min`;
-
-            const pad = (n) => String(n).padStart(2, '0');
-            resExactHhmm.textContent = `${pad(hours)}:${pad(minutes)}:${pad(seconds)} (h:m:s)`;
-
-            const now = new Date();
-            const finishTime = new Date(now.getTime() + totalSecondsTotal * 1000);
-
-            const hoursFinish = pad(finishTime.getHours());
-            const minutesFinish = pad(finishTime.getMinutes());
-            resFinishClock.textContent = `${hoursFinish}:${minutesFinish}`;
-
-            const isNextDay = finishTime.getDate() !== now.getDate();
-            if (isNextDay) {
-                const weekdays = ['sön', 'mån', 'tis', 'ons', 'tors', 'fre', 'lör'];
-                resFinishDate.textContent = `Imorgon (${weekdays[finishTime.getDay()]})`;
-            } else {
-                resFinishDate.textContent = `Idag (omgående körning)`;
-            }
-        }
-
-        // Service Worker Registration for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(registration => {
-                    console.log('SW registered: ', registration);
-                }).catch(registrationError => {
-                    console.log('SW registration failed: ', registrationError);
-                });
-            });
-        }
     </script>
 </body>
 </html>

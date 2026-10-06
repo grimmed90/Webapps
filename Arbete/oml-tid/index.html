@@ -231,11 +231,26 @@
 
             <!-- Monthly Calendar Grid -->
             <div>
-              <h3
-                class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3"
-              >
-                Schema Månad
-              </h3>
+              <div class="flex items-center justify-between mb-3 bg-gray-50 p-2 rounded-md border">
+                <button
+                  id="team-prev-month"
+                  class="p-1 rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none"
+                >
+                  <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                </button>
+                <h3
+                  id="team-calendar-month-label"
+                  class="text-sm font-semibold text-gray-700 uppercase tracking-wider"
+                >
+                  Schema Månad
+                </h3>
+                <button
+                  id="team-next-month"
+                  class="p-1 rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none"
+                >
+                  <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </button>
+              </div>
               <div
                 id="my-team-calendar"
                 class="grid grid-cols-7 gap-1 text-center text-xs"
@@ -265,14 +280,30 @@
             <div
               class="flex justify-between items-center bg-gray-50 p-2 rounded-md border"
             >
-              <label for="matrix-date" class="text-sm font-medium text-gray-700"
-                >Startdatum:</label
+              <button
+                id="matrix-prev-month"
+                class="p-1 rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none"
               >
-              <input
-                type="date"
-                id="matrix-date"
-                class="block pl-3 pr-3 py-1 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm"
-              />
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+              </button>
+
+              <div class="flex items-center gap-2">
+                <label for="matrix-month" class="text-sm font-medium text-gray-700"
+                  >Månad:</label
+                >
+                <input
+                  type="month"
+                  id="matrix-month"
+                  class="block pl-3 pr-3 py-1 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm"
+                />
+              </div>
+
+              <button
+                id="matrix-next-month"
+                class="p-1 rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none"
+              >
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+              </button>
             </div>
 
             <div class="overflow-x-auto rounded-lg border border-gray-200">
@@ -1015,7 +1046,10 @@
       const teamSelect = document.getElementById("team-select");
       const myTeamContainer = document.getElementById("my-team-container");
       const allTeamsContainer = document.getElementById("all-teams-container");
-      const matrixDateInput = document.getElementById("matrix-date");
+      const matrixMonthInput = document.getElementById("matrix-month");
+
+      let currentTeamMonth = new Date(); // To track the currently viewed month for a specific team
+      currentTeamMonth.setDate(1); // Ensure date is 1 to avoid end of month wrapping issues
 
       const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -1170,11 +1204,22 @@
         }
 
         // 3. Render Monthly Calendar
+        renderTeamCalendar(teamName, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
+      }
+
+      function renderTeamCalendar(teamName, year, month) {
+        const teamOffset = window.shiftConfig.teamOffsets[teamName];
         const calendarContainer = document.getElementById("my-team-calendar");
+        const monthLabel = document.getElementById("team-calendar-month-label");
         calendarContainer.innerHTML = "";
 
-        const currentYear = today.getFullYear();
-        const currentMonth = today.getMonth();
+        const monthDate = new Date(year, month, 1);
+        const monthName = monthDate.toLocaleDateString("sv-SE", { month: "long" });
+        monthLabel.textContent = `${monthName} ${year}`;
+
+        const today = new Date();
+        const currentYear = year;
+        const currentMonth = month;
         const daysInMonth = new Date(
           currentYear,
           currentMonth + 1,
@@ -1206,7 +1251,7 @@
           const shiftCode = getShift(cellDate, teamOffset);
           const shiftInfo = getShiftTypeInfo(shiftCode);
 
-          const isToday = i === today.getDate();
+          const isToday = (i === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear());
 
           const cell = document.createElement("div");
           cell.className = `p-2 rounded flex flex-col items-center justify-center ${shiftInfo.colorClass} ${isToday ? "ring-2 ring-black font-bold" : ""}`;
@@ -1218,6 +1263,22 @@
         }
       }
 
+      document.getElementById('team-prev-month').addEventListener('click', () => {
+          const selectedTeam = teamSelect.value;
+          if (selectedTeam !== "Alla lag") {
+              currentTeamMonth.setMonth(currentTeamMonth.getMonth() - 1);
+              renderTeamCalendar(selectedTeam, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
+          }
+      });
+
+      document.getElementById('team-next-month').addEventListener('click', () => {
+          const selectedTeam = teamSelect.value;
+          if (selectedTeam !== "Alla lag") {
+              currentTeamMonth.setMonth(currentTeamMonth.getMonth() + 1);
+              renderTeamCalendar(selectedTeam, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
+          }
+      });
+
       function getWeekNumber(d) {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
         d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -1226,7 +1287,10 @@
         return weekNo;
       }
 
-      function renderMatrixView(startDate) {
+      let currentMatrixMonth = new Date();
+      currentMatrixMonth.setDate(1);
+
+      function renderMatrixView(year, month) {
         const tableBody = document.getElementById("matrix-table-body");
         tableBody.innerHTML = "";
 
@@ -1234,22 +1298,23 @@
 
         let currentWeek = -1;
 
-        for (let i = 0; i < 14; i++) {
-          const date = new Date(startDate);
-          date.setDate(startDate.getDate() + i);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 1; i <= daysInMonth; i++) {
+          const date = new Date(year, month, i);
 
           const tr = document.createElement("tr");
 
           // Add week separator if week changes
           const weekNum = getWeekNumber(date);
-          if (weekNum !== currentWeek && i !== 0 && date.getDay() === 1) {
+          if (weekNum !== currentWeek && i !== 1 && date.getDay() === 1) {
             // Monday
             const separator = document.createElement("tr");
             separator.className = "bg-gray-100";
             separator.innerHTML = `<td colspan="6" class="px-3 py-1 text-xs font-semibold text-gray-500 uppercase">Vecka ${weekNum}</td>`;
             tableBody.appendChild(separator);
             currentWeek = weekNum;
-          } else if (i === 0) {
+          } else if (i === 1) {
             currentWeek = weekNum;
             const separator = document.createElement("tr");
             separator.className = "bg-gray-100";
@@ -1277,6 +1342,12 @@
         }
       }
 
+      function updateMatrixMonthInput() {
+          const year = currentMatrixMonth.getFullYear();
+          const month = String(currentMatrixMonth.getMonth() + 1).padStart(2, '0');
+          matrixMonthInput.value = `${year}-${month}`;
+      }
+
       function updateSkiftschemaView() {
         const selected = teamSelect.value;
         localStorage.setItem("selectedTeam", selected);
@@ -1285,16 +1356,23 @@
           myTeamContainer.classList.add("hidden");
           allTeamsContainer.classList.remove("hidden");
 
-          let matrixDate = new Date();
-          if (matrixDateInput.value) {
-            matrixDate = new Date(matrixDateInput.value);
+          if (matrixMonthInput.value) {
+            const [year, month] = matrixMonthInput.value.split('-');
+            currentMatrixMonth = new Date(year, month - 1, 1);
           } else {
-            matrixDateInput.valueAsDate = new Date();
+            currentMatrixMonth = new Date();
+            currentMatrixMonth.setDate(1);
+            updateMatrixMonthInput();
           }
-          renderMatrixView(matrixDate);
+          renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
         } else {
           allTeamsContainer.classList.add("hidden");
           myTeamContainer.classList.remove("hidden");
+
+          // Reset currentTeamMonth to today when switching teams or view
+          currentTeamMonth = new Date();
+          currentTeamMonth.setDate(1);
+
           renderMyTeamView(selected);
         }
       }
@@ -1309,9 +1387,28 @@
       }
 
       teamSelect.addEventListener("change", updateSkiftschemaView);
-      matrixDateInput.addEventListener("change", () => {
-        if (teamSelect.value === "Alla lag")
-          renderMatrixView(new Date(matrixDateInput.value));
+      matrixMonthInput.addEventListener("change", () => {
+        if (teamSelect.value === "Alla lag") {
+          const [year, month] = matrixMonthInput.value.split('-');
+          currentMatrixMonth = new Date(year, month - 1, 1);
+          renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
+        }
+      });
+
+      document.getElementById('matrix-prev-month').addEventListener('click', () => {
+          currentMatrixMonth.setMonth(currentMatrixMonth.getMonth() - 1);
+          updateMatrixMonthInput();
+          if (teamSelect.value === "Alla lag") {
+              renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
+          }
+      });
+
+      document.getElementById('matrix-next-month').addEventListener('click', () => {
+          currentMatrixMonth.setMonth(currentMatrixMonth.getMonth() + 1);
+          updateMatrixMonthInput();
+          if (teamSelect.value === "Alla lag") {
+              renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
+          }
       });
 
       // Add event listener to update view when tab is opened

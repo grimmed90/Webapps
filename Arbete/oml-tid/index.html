@@ -110,14 +110,6 @@
             Skiftschema
           </button>
         </div>
-        <div class="mt-8 space-y-4">
-          <button
-            id="btn-korprogram"
-            class="w-full py-3 px-4 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition"
-          >
-            Körprogram Meterräknare
-          </button>
-        </div>
       </div>
 
       <!-- Omläggning View -->
@@ -238,12 +230,16 @@
                 >
                   <i data-lucide="chevron-left" class="w-5 h-5"></i>
                 </button>
-                <h3
-                  id="team-calendar-month-label"
-                  class="text-sm font-semibold text-gray-700 uppercase tracking-wider"
-                >
-                  Schema Månad
-                </h3>
+                <div class="flex items-center gap-2">
+                  <label for="team-month" class="text-sm font-medium text-gray-700"
+                    >Månad:</label
+                  >
+                  <input
+                    type="month"
+                    id="team-month"
+                    class="block pl-3 pr-3 py-1 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm"
+                  />
+                </div>
                 <button
                   id="team-next-month"
                   class="p-1 rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-700 focus:outline-none"
@@ -403,12 +399,6 @@
         });
 
       const legacyViews = document.getElementById("legacy-views");
-
-      document
-        .getElementById("btn-korprogram")
-        .addEventListener("click", () => {
-          window.location.href = "meterraknare.html";
-        });
 
       // --- Omläggning Logic ---
       // Hämta DOM-element
@@ -682,15 +672,20 @@
         renderTeamCalendar(teamName, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
       }
 
+      function updateTeamMonthInput() {
+          const teamMonthInput = document.getElementById("team-month");
+          if (!teamMonthInput) return;
+          const year = currentTeamMonth.getFullYear();
+          const month = String(currentTeamMonth.getMonth() + 1).padStart(2, '0');
+          teamMonthInput.value = `${year}-${month}`;
+      }
+
       function renderTeamCalendar(teamName, year, month) {
         const teamOffset = window.shiftConfig.teamOffsets[teamName];
         const calendarContainer = document.getElementById("my-team-calendar");
-        const monthLabel = document.getElementById("team-calendar-month-label");
         calendarContainer.innerHTML = "";
 
-        const monthDate = new Date(year, month, 1);
-        const monthName = monthDate.toLocaleDateString("sv-SE", { month: "long" });
-        monthLabel.textContent = `${monthName} ${year}`;
+        updateTeamMonthInput();
 
         const today = new Date();
         const currentYear = year;
@@ -759,6 +754,15 @@
           const selectedTeam = teamSelect.value;
           if (selectedTeam !== "Alla lag") {
               currentTeamMonth.setMonth(currentTeamMonth.getMonth() - 1);
+              renderTeamCalendar(selectedTeam, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
+          }
+      });
+
+      document.getElementById('team-month').addEventListener('change', (e) => {
+          const selectedTeam = teamSelect.value;
+          if (selectedTeam !== "Alla lag" && e.target.value) {
+              const [year, month] = e.target.value.split('-');
+              currentTeamMonth = new Date(year, month - 1, 1);
               renderTeamCalendar(selectedTeam, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
           }
       });

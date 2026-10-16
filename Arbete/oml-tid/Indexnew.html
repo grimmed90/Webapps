@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="sv" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Verktyg</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="apple-touch-icon" sizes="180x180" href="res/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="res/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="res/favicon-16x16.png" />
+    <link rel="manifest" href="res/site.webmanifest" />
+    <script src="shiftConfig.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .font-mono-num {
+        font-family: "JetBrains Mono", monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield;
+      }
+    </style>
+  </head>
+  <body class="bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-screen antialiased selection:bg-zinc-800 selection:text-white pb-12">
+    <div class="w-full max-w-md mx-auto px-4 pt-4 sm:pt-8 space-y-6">
+      
+      <!-- Minimal Header -->
+      <header class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <h1 class="text-sm font-semibold tracking-tight">Fors Verktyg</h1>
+          </div>
+          <p id="live-header-status" class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 pl-4">
+            Stora Enso Fors
+          </p>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <span
+            id="live-clock"
+            class="font-mono-num text-xs font-medium px-2.5 py-1 rounded-md bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200/80 dark:border-zinc-800"
+          >
+            --:--
+          </span>
+          <button
+            id="btn-theme-toggle"
+            class="p-1.5 rounded-md bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 border border-zinc-200/80 dark:border-zinc-800 transition"
+            title="Byt tema"
+          >
+            <i id="theme-icon" data-lucide="sun" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Minimal Segmented Navigation (2 flikar) -->
+      <nav class="grid grid-cols-2 p-1 bg-zinc-200/60 dark:bg-zinc-900 rounded-lg border border-zinc-200/80 dark:border-zinc-800/80">
+        <button data-tab="omlaggning" class="nav-tab py-1.5 text-xs font-medium rounded-md transition-all">
+          Omläggning
+        </button>
+        <button data-tab="skiftschema" class="nav-tab py-1.5 text-xs font-medium rounded-md transition-all">
+          Skiftschema
+        </button>
+      </nav>
+
+      <!-- ==========================================
+           VY 1: OMLÄGGNING
+           ========================================== -->
+      <main id="view-omlaggning" class="space-y-4">
+        <div class="bg-white dark:bg-zinc-900/70 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 p-5 space-y-5">
+          
+          <!-- Starttid -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="start-time" class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+                Starttid
+              </label>
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  id="btn-set-now"
+                  class="text-[11px] font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition"
+                >
+                  Nu
+                </button>
+                <button
+                  type="button"
+                  id="btn-reset-oml"
+                  class="text-[11px] font-medium text-zinc-400 hover:text-red-500 transition"
+                >
+                  Nollställ
+                </button>
+              </div>
+            </div>
+            <input
+              type="time"
+              id="start-time"
+              class="w-full px-3 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg font-mono-num text-sm font-medium focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition"
+            />
+          </div>
+
+          <!-- Ton kvar -->
+          <div>
+            <label for="tonnage" class="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
+              Ton kvar
+            </label>
+            <div class="flex items-center bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg focus-within:border-zinc-400 dark:focus-within:border-zinc-600 transition">
+              <input
+                type="number"
+                id="tonnage"
+                step="any"
+                inputmode="decimal"
+                placeholder="0"
+                class="w-full px-3 py-2.5 bg-transparent font-mono-num text-sm font-medium focus:outline-none"
+              />
+              <span class="text-xs text-zinc-400 pr-2 select-none">t</span>
+              <div class="flex items-center border-l border-zinc-200 dark:border-zinc-800 pl-1 pr-1 gap-0.5">
+                <button type="button" data-adjust-input="tonnage" data-step="-5" class="px-2 py-1.5 text-xs font-mono-num text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition">−5</button>
+                <button type="button" data-adjust-input="tonnage" data-step="5" class="px-2 py-1.5 text-xs font-mono-num text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition">+5</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hastighet -->
+          <div>
+            <label for="speed" class="block text-[11px] font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
+              Hastighet
+            </label>
+            <div class="flex items-center bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg focus-within:border-zinc-400 dark:focus-within:border-zinc-600 transition">
+              <input
+                type="number"
+                id="speed"
+                step="any"
+                inputmode="decimal"
+                placeholder="0"
+                class="w-full px-3 py-2.5 bg-transparent font-mono-num text-sm font-medium focus:outline-none"
+              />
+              <span class="text-xs text-zinc-400 pr-2 select-none">t/h</span>
+              <div class="flex items-center border-l border-zinc-200 dark:border-zinc-800 pl-1 pr-1 gap-0.5">
+                <button type="button" data-adjust-input="speed" data-step="-1" class="px-2.5 py-1.5 text-xs font-mono-num text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition">−1</button>
+                <button type="button" data-adjust-input="speed" data-step="1" class="px-2.5 py-1.5 text-xs font-mono-num text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition">+1</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resultat-panel -->
+        <div
+          id="result-container"
+          class="hidden bg-white dark:bg-zinc-900/70 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 p-5 space-y-4"
+        >
+          <div class="flex items-baseline justify-between">
+            <div>
+              <span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400 block">
+                Beräknad sluttid
+              </span>
+              <p id="result-text" class="text-4xl font-semibold font-mono-num tracking-tight mt-1">
+                --:--
+              </p>
+              <p id="result-date" class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5"></p>
+            </div>
+            <div class="text-right">
+              <span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400 block">
+                Total körtid
+              </span>
+              <span id="result-duration" class="font-mono-num text-base font-medium text-zinc-700 dark:text-zinc-300 mt-1 block">
+                --
+              </span>
+            </div>
+          </div>
+
+          <!-- Diskret Progress-linje -->
+          <div class="space-y-1.5">
+            <div class="w-full h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div id="result-progress-bar" class="h-full bg-zinc-900 dark:bg-zinc-100 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-zinc-500 dark:text-zinc-400">
+              <span>Nuvarande förlopp</span>
+              <span id="result-countdown" class="font-mono-num font-medium text-zinc-800 dark:text-zinc-200">--</span>
+            </div>
+          </div>
+
+          <!-- Skiftinformation vid sluttid -->
+          <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-xs">
+            <span class="text-zinc-500 dark:text-zinc-400">Ansvarigt skift vid slut</span>
+            <div class="flex items-center gap-2">
+              <span id="result-handover-info" class="text-[11px] text-zinc-400"></span>
+              <span
+                id="result-shift-badge"
+                class="font-mono-num font-medium px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/60 dark:border-zinc-700"
+              >
+                --
+              </span>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- ==========================================
+           VY 2: SKIFTSCHEMA
+           ========================================== -->
+      <main id="view-skiftschema" class="hidden space-y-4">
+        <div class="bg-white dark:bg-zinc-900/70 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 p-5 space-y-5">
+          
+          <!-- Lag-väljare -->
+          <div class="flex items-center justify-between gap-2">
+            <div id="team-pills" class="grid grid-cols-6 gap-1 flex-1">
+              <button data-team="Alla lag" class="team-pill py-1.5 rounded-md text-xs font-medium border transition">Alla</button>
+              <button data-team="A-lag" class="team-pill py-1.5 rounded-md text-xs font-medium border transition">A</button>
+              <button data-team="B-lag" class="team-pill py-1.5 rounded-md text-xs font-medium border transition">B</button>
+              <button data-team="C-lag" class="team-pill py-1.5 rounded-md text-xs font-medium border transition">C</button>
+              <button data-team="D-lag" class="team-pill py-1.5 rounded-md text-xs font-medium border transition">D</button>
+              <button data-team="E-lag" class="team-pill py-1.5 rounded-md text-xs font-medium border transition">E</button>
+            </div>
+            <button
+              id="btn-jump-today"
+              class="px-2.5 py-1.5 rounded-md text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-800 transition"
+              title="Hoppa till aktuell månad"
+            >
+              Idag
+            </button>
+          </div>
+
+          <!-- ENSKILT LAG -->
+          <div id="my-team-container" class="hidden space-y-6">
+            
+            <!-- Statuskort Idag -->
+            <div id="my-team-today" class="p-4 rounded-lg border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/50"></div>
+
+            <!-- Månadskalender -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <button id="team-prev-month" class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500">
+                  <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                </button>
+                <input
+                  type="month"
+                  id="team-month"
+                  class="bg-transparent font-medium text-xs text-center focus:outline-none cursor-pointer"
+                />
+                <button id="team-next-month" class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500">
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <div id="my-team-calendar" class="grid grid-cols-8 gap-1 text-center text-xs"></div>
+
+              <!-- Månadssummering -->
+              <div class="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800/60 text-[11px] text-zinc-400">
+                <span id="team-month-stats">-- pass · -- tim</span>
+                <span>F/E/N 8h · FH/NH 12h</span>
+              </div>
+            </div>
+
+            <!-- Kommande 14 dagar -->
+            <div class="space-y-2">
+              <h3 class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+                Kommande 14 dagar
+              </h3>
+              <ul id="my-team-agenda" class="divide-y divide-zinc-100 dark:divide-zinc-800/60 border-t border-b border-zinc-100 dark:border-zinc-800/60"></ul>
+            </div>
+          </div>
+
+          <!-- ALLA LAG (MATRIS) -->
+          <div id="all-teams-container" class="hidden space-y-3">
+            <div class="flex items-center justify-between">
+              <button id="matrix-prev-month" class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <input
+                type="month"
+                id="matrix-month"
+                class="bg-transparent font-medium text-xs text-center focus:outline-none cursor-pointer"
+              />
+              <button id="matrix-next-month" class="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center justify-end">
+              <label class="inline-flex items-center gap-2 text-[11px] text-zinc-500 cursor-pointer select-none">
+                <input type="checkbox" id="check-hide-past" checked class="rounded border-zinc-300 dark:border-zinc-700 bg-transparent" />
+                Dölj passerade dagar
+              </label>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg border border-zinc-200/80 dark:border-zinc-800">
+              <table class="min-w-full text-xs">
+                <thead>
+                  <tr class="border-b border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 text-zinc-400">
+                    <th class="px-3 py-2 text-left font-medium">Datum</th>
+                    <th class="px-2 py-2 text-center font-medium">A</th>
+                    <th class="px-2 py-2 text-center font-medium">B</th>
+                    <th class="px-2 py-2 text-center font-medium">C</th>
+                    <th class="px-2 py-2 text-center font-medium">D</th>
+                    <th class="px-2 py-2 text-center font-medium">E</th>
+                  </tr>
+                </thead>
+                <tbody id="matrix-table-body" class="divide-y divide-zinc-100 dark:divide-zinc-800/60"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const MS_PER_DAY = 86400000;
+
+      const MINIMAL_SHIFT_STYLES = {
+        F: "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/20",
+        FH: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/20",
+        E: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20",
+        N: "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/20",
+        NH: "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20",
+        L: "bg-transparent text-zinc-400 dark:text-zinc-600 border-zinc-200/60 dark:border-zinc-800/60",
+      };
+
+      function getMinimalStyle(code) {
+        return MINIMAL_SHIFT_STYLES[code] || MINIMAL_SHIFT_STYLES.L;
+      }
+
+      // ==========================================
+      // 1. TEMA & NAVIGATION
+      // ==========================================
+      const htmlEl = document.documentElement;
+      const btnThemeToggle = document.getElementById("btn-theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+
+      function applyTheme(theme) {
+        if (theme === "light") {
+          htmlEl.classList.remove("dark");
+          themeIcon.setAttribute("data-lucide", "moon");
+        } else {
+          htmlEl.classList.add("dark");
+          themeIcon.setAttribute("data-lucide", "sun");
+        }
+        lucide.createIcons();
+      }
+
+      applyTheme(localStorage.getItem("fors_theme") || "dark");
+
+      btnThemeToggle.addEventListener("click", () => {
+        const nextTheme = htmlEl.classList.contains("dark") ? "light" : "dark";
+        localStorage.setItem("fors_theme", nextTheme);
+        applyTheme(nextTheme);
+      });
+
+      const views = {
+        omlaggning: document.getElementById("view-omlaggning"),
+        skiftschema: document.getElementById("view-skiftschema"),
+      };
+      const navTabs = document.querySelectorAll(".nav-tab");
+
+      function switchTab(tabName) {
+        if (!views[tabName]) tabName = "omlaggning";
+        Object.keys(views).forEach((key) => {
+          views[key].classList.toggle("hidden", key !== tabName);
+        });
+        navTabs.forEach((btn) => {
+          const isActive = btn.dataset.tab === tabName;
+          btn.className = isActive
+            ? "nav-tab py-1.5 text-xs font-medium rounded-md transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs"
+            : "nav-tab py-1.5 text-xs font-medium rounded-md transition-all text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200";
+        });
+        localStorage.setItem("fors_active_tab", tabName);
+        if (tabName === "skiftschema") updateSkiftschemaView();
+      }
+
+      navTabs.forEach((btn) => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+      });
+
+      // ==========================================
+      // 2. SKIFTLOGIK & KLOCKA
+      // ==========================================
+      function getShift(targetDate, teamOffset) {
+        if (!window.shiftConfig) return "L";
+        const anchorDate = new Date(window.shiftConfig.anchorDate);
+        const utcTarget = Date.UTC(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+        const utcAnchor = Date.UTC(anchorDate.getFullYear(), anchorDate.getMonth(), anchorDate.getDate());
+        const diffDays = Math.floor((utcTarget - utcAnchor) / MS_PER_DAY);
+        const cycleLength = window.shiftConfig.pattern.length;
+        const shiftIndex = (((diffDays - teamOffset) % cycleLength) + cycleLength) % cycleLength;
+        return window.shiftConfig.pattern[shiftIndex];
+      }
+
+      function getShiftTypeInfo(shiftCode) {
+        return window.shiftConfig.shiftTypes[shiftCode] || window.shiftConfig.shiftTypes["L"];
+      }
+
+      function getActiveTeamAtTimestamp(dateObj) {
+        if (!window.shiftConfig) return null;
+        const teams = Object.keys(window.shiftConfig.teamOffsets);
+        const hour = dateObj.getHours() + dateObj.getMinutes() / 60;
+
+        const checkDate = new Date(dateObj);
+        if (hour < 6) {
+          checkDate.setDate(checkDate.getDate() - 1);
+        }
+
+        for (const team of teams) {
+          const offset = window.shiftConfig.teamOffsets[team];
+          const code = getShift(checkDate, offset);
+          if (hour < 6 && (code === "N" || code === "NH")) return { team, code, info: getShiftTypeInfo(code) };
+          if (hour >= 6 && hour < 14 && (code === "F" || code === "FH")) return { team, code, info: getShiftTypeInfo(code) };
+          if (hour >= 14 && hour < 18 && (code === "E" || code === "FH")) return { team, code, info: getShiftTypeInfo(code) };
+          if (hour >= 18 && hour < 22 && (code === "E" || code === "NH")) return { team, code, info: getShiftTypeInfo(code) };
+          if (hour >= 22 && (code === "N" || code === "NH")) return { team, code, info: getShiftTypeInfo(code) };
+        }
+        return null;
+      }
+
+      function updateHeaderClock() {
+        const now = new Date();
+        document.getElementById("live-clock").textContent = now.toLocaleTimeString("sv-SE", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        const active = getActiveTeamAtTimestamp(now);
+        const statusEl = document.getElementById("live-header-status");
+        statusEl.textContent = active ? `Nu kör ${active.team} (${active.info.name})` : "Stora Enso Fors";
+      }
+
+      // ==========================================
+      // 3. REAKTIV OMLÄGGNINGSKALKYLATOR
+      // ==========================================
+      const startTimeInput = document.getElementById("start-time");
+      const tonnageInput = document.getElementById("tonnage");
+      const speedInput = document.getElementById("speed");
+      const resultContainer = document.getElementById("result-container");
+      const resultText = document.getElementById("result-text");
+      const resultDate = document.getElementById("result-date");
+      const resultDuration = document.getElementById("result-duration");
+      const resultCountdown = document.getElementById("result-countdown");
+      const resultProgressBar = document.getElementById("result-progress-bar");
+      const resultShiftBadge = document.getElementById("result-shift-badge");
+      const resultHandoverInfo = document.getElementById("result-handover-info");
+
+      let omlTimerInterval = null;
+      let currentOmlCalc = null;
+
+      function setStartTimeNow() {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mm = String(now.getMinutes()).padStart(2, "0");
+        startTimeInput.value = `${hh}:${mm}`;
+      }
+
+      document.getElementById("btn-set-now").addEventListener("click", () => {
+        setStartTimeNow();
+        calculateEndTime();
+      });
+
+      document.getElementById("btn-reset-oml").addEventListener("click", () => {
+        setStartTimeNow();
+        tonnageInput.value = "";
+        speedInput.value = "";
+        resultContainer.classList.add("hidden");
+        localStorage.removeItem("fors_last_oml");
+      });
+
+      document.querySelectorAll("[data-adjust-input]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.dataset.adjustInput;
+          const step = parseFloat(btn.dataset.step);
+          const inputEl = document.getElementById(targetId);
+          const currentVal = parseFloat(inputEl.value) || 0;
+          inputEl.value = Math.max(0.5, +(currentVal + step).toFixed(2));
+          calculateEndTime();
+        });
+      });
+
+      function updateOmlLiveCountdown() {
+        if (!currentOmlCalc) return;
+        const now = new Date();
+        const { startTime, endTime } = currentOmlCalc;
+        const totalMs = endTime - startTime;
+        const remainingMs = endTime - now;
+
+        if (remainingMs <= 0) {
+          resultCountdown.textContent = "Klar nu";
+          resultProgressBar.style.width = "100%";
+          return;
+        }
+
+        const remHours = Math.floor(remainingMs / 3600000);
+        const remMins = Math.floor((remainingMs % 3600000) / 60000);
+        resultCountdown.textContent = `${remHours}h ${remMins}m kvar`;
+
+        const elapsedMs = Math.max(0, now - startTime);
+        const pct = totalMs > 0 ? Math.min(100, Math.max(0, (elapsedMs / totalMs) * 100)) : 100;
+        resultProgressBar.style.width = `${pct.toFixed(1)}%`;
+      }
+
+      function calculateEndTime() {
+        const startTimeValue = startTimeInput.value;
+        const totalTonnage = parseFloat(tonnageInput.value);
+        const speedTonPerHour = parseFloat(speedInput.value);
+
+        if (!startTimeValue || isNaN(totalTonnage) || totalTonnage <= 0 || isNaN(speedTonPerHour) || speedTonPerHour <= 0) {
+          resultContainer.classList.add("hidden");
+          return;
+        }
+
+        const now = new Date();
+        const [startHours, startMinutes] = startTimeValue.split(":").map(Number);
+        let startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHours, startMinutes);
+
+        if (startTime.getTime() - now.getTime() > 3600000) {
+          startTime.setDate(startTime.getDate() - 1);
+        }
+
+        const hoursDuration = totalTonnage / speedTonPerHour;
+        const msDuration = hoursDuration * 3600000;
+        const endTime = new Date(startTime.getTime() + msDuration);
+
+        const durH = Math.floor(hoursDuration);
+        const durM = Math.round((hoursDuration - durH) * 60);
+        resultDuration.textContent = `${durH}h ${durM}m`;
+
+        resultText.textContent = endTime.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+        const formattedDate = endTime.toLocaleDateString("sv-SE", {
+          weekday: "long",
+          day: "numeric",
+          month: "short",
+        });
+        resultDate.textContent = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+
+        const activeNow = getActiveTeamAtTimestamp(now);
+        const activeAtEnd = getActiveTeamAtTimestamp(endTime);
+
+        if (activeAtEnd) {
+          resultShiftBadge.textContent = `${activeAtEnd.team} (${activeAtEnd.code})`;
+          if (activeNow && activeNow.team === activeAtEnd.team && (endTime - now) < 12 * 3600000) {
+            resultHandoverInfo.textContent = "Inget skiftbyte";
+          } else {
+            resultHandoverInfo.textContent = "Efter skiftbyte";
+          }
+        } else {
+          resultShiftBadge.textContent = "—";
+          resultHandoverInfo.textContent = "";
+        }
+
+        currentOmlCalc = { startTime, endTime };
+        updateOmlLiveCountdown();
+        if (omlTimerInterval) clearInterval(omlTimerInterval);
+        omlTimerInterval = setInterval(updateOmlLiveCountdown, 15000);
+
+        localStorage.setItem(
+          "fors_last_oml",
+          JSON.stringify({
+            startTimeValue,
+            tonnage: tonnageInput.value,
+            speed: speedInput.value,
+          })
+        );
+
+        resultContainer.classList.remove("hidden");
+      }
+
+      [startTimeInput, tonnageInput, speedInput].forEach((el) => {
+        el.addEventListener("input", calculateEndTime);
+      });
+
+      // ==========================================
+      // 4. SKIFTSCHEMA
+      // ==========================================
+      let selectedTeam = localStorage.getItem("selectedTeam") || "Alla lag";
+      const myTeamContainer = document.getElementById("my-team-container");
+      const allTeamsContainer = document.getElementById("all-teams-container");
+      const matrixMonthInput = document.getElementById("matrix-month");
+      const checkHidePast = document.getElementById("check-hide-past");
+
+      let currentTeamMonth = new Date();
+      currentTeamMonth.setDate(1);
+      let currentMatrixMonth = new Date();
+      currentMatrixMonth.setDate(1);
+      let shiftCountdownInterval;
+
+      function updateTeamPillsUI() {
+        document.querySelectorAll(".team-pill").forEach((btn) => {
+          const isSelected = btn.dataset.team === selectedTeam;
+          btn.className = isSelected
+            ? "team-pill py-1.5 rounded-md text-xs font-medium border transition bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:border-zinc-100"
+            : "team-pill py-1.5 rounded-md text-xs font-medium border transition bg-transparent text-zinc-500 border-zinc-200/80 dark:border-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100";
+        });
+      }
+
+      document.querySelectorAll(".team-pill").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          selectedTeam = btn.dataset.team;
+          localStorage.setItem("selectedTeam", selectedTeam);
+          updateSkiftschemaView();
+        });
+      });
+
+      document.getElementById("btn-jump-today").addEventListener("click", () => {
+        currentTeamMonth = new Date();
+        currentTeamMonth.setDate(1);
+        currentMatrixMonth = new Date();
+        currentMatrixMonth.setDate(1);
+        updateMatrixMonthInput();
+        updateSkiftschemaView();
+      });
+
+      function getEffectiveTodayShiftForTeam(teamOffset) {
+        const now = new Date();
+        if (now.getHours() < 6) {
+          const yesterday = new Date(now);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yCode = getShift(yesterday, teamOffset);
+          if (yCode === "N" || yCode === "NH") {
+            return { code: yCode, info: getShiftTypeInfo(yCode), isFromYesterdayNight: true };
+          }
+        }
+        const code = getShift(now, teamOffset);
+        return { code, info: getShiftTypeInfo(code), isFromYesterdayNight: false };
+      }
+
+      function updateMyTeamCountdown(shiftState) {
+        const countdownEl = document.getElementById("my-team-countdown");
+        if (!countdownEl) return;
+
+        const { code, info, isFromYesterdayNight } = shiftState;
+        if (code === "L") {
+          countdownEl.textContent = "Ledig idag";
+          return;
+        }
+
+        const timeParts = info.time.split(" - ");
+        if (timeParts.length !== 2) return;
+
+        const [startHour, startMinute] = timeParts[0].split(":").map(Number);
+        const [endHour, endMinute] = timeParts[1].split(":").map(Number);
+
+        const now = new Date();
+        let startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, startMinute);
+        let endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMinute);
+
+        if (isFromYesterdayNight) {
+          startTime.setDate(startTime.getDate() - 1);
+        } else if (endHour < startHour) {
+          endTime.setDate(endTime.getDate() + 1);
+        }
+
+        if (now < startTime) {
+          const diff = startTime - now;
+          const h = Math.floor(diff / 3600000);
+          const m = Math.floor((diff % 3600000) / 60000);
+          countdownEl.textContent = `Börjar om ${h}h ${m}m`;
+        } else if (now >= startTime && now <= endTime) {
+          const diff = endTime - now;
+          const h = Math.floor(diff / 3600000);
+          const m = Math.floor((diff % 3600000) / 60000);
+          countdownEl.textContent = `Pågår · ${h}h ${m}m kvar`;
+        } else {
+          countdownEl.textContent = "Passet avslutat";
+        }
+      }
+
+      function renderMyTeamView(teamName) {
+        const teamOffset = window.shiftConfig.teamOffsets[teamName];
+        const shiftState = getEffectiveTodayShiftForTeam(teamOffset);
+        const todayContainer = document.getElementById("my-team-today");
+
+        todayContainer.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400 block">${teamName} · Aktuellt skift</span>
+              <p class="text-xl font-semibold mt-0.5">${shiftState.info.name}</p>
+              <p class="text-xs font-mono-num text-zinc-500 mt-0.5">${shiftState.info.time}</p>
+            </div>
+            <div class="text-right">
+              <span class="inline-block font-mono-num text-xs font-medium px-2.5 py-1 rounded border ${getMinimalStyle(shiftState.code)}">
+                ${shiftState.code}
+              </span>
+              <p id="my-team-countdown" class="text-xs font-mono-num text-zinc-500 mt-2"></p>
+            </div>
+          </div>
+        `;
+
+        if (shiftCountdownInterval) clearInterval(shiftCountdownInterval);
+        updateMyTeamCountdown(shiftState);
+        shiftCountdownInterval = setInterval(() => updateMyTeamCountdown(shiftState), 60000);
+
+        const today = new Date();
+        const baseToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const agendaContainer = document.getElementById("my-team-agenda");
+        agendaContainer.innerHTML = "";
+
+        for (let i = 1; i <= 14; i++) {
+          const futureDate = new Date(baseToday);
+          futureDate.setDate(baseToday.getDate() + i);
+          const shiftCode = getShift(futureDate, teamOffset);
+          const shiftInfo = getShiftTypeInfo(shiftCode);
+
+          const dateStr = futureDate.toLocaleDateString("sv-SE", {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+          });
+
+          const li = document.createElement("li");
+          li.className = "flex justify-between items-center py-2 text-xs";
+          li.innerHTML = `
+            <span class="text-zinc-500 capitalize w-24">${dateStr}</span>
+            <span class="font-medium flex-1 text-center ${shiftCode === "L" ? "text-zinc-400 dark:text-zinc-600" : ""}">${shiftInfo.name}</span>
+            <span class="font-mono-num text-[11px] text-zinc-400 w-24 text-right">${shiftCode !== "L" ? shiftInfo.time : "—"}</span>
+          `;
+          agendaContainer.appendChild(li);
+        }
+
+        renderTeamCalendar(teamName, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
+      }
+
+      function updateTeamMonthInput() {
+        const teamMonthInput = document.getElementById("team-month");
+        if (!teamMonthInput) return;
+        const year = currentTeamMonth.getFullYear();
+        const month = String(currentTeamMonth.getMonth() + 1).padStart(2, "0");
+        teamMonthInput.value = `${year}-${month}`;
+      }
+
+      function getWeekNumber(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        return Math.ceil(((d - yearStart) / MS_PER_DAY + 1) / 7);
+      }
+
+      function renderTeamCalendar(teamName, year, month) {
+        const teamOffset = window.shiftConfig.teamOffsets[teamName];
+        const calendarContainer = document.getElementById("my-team-calendar");
+        calendarContainer.innerHTML = "";
+
+        updateTeamMonthInput();
+
+        const today = new Date();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDayOfMonth = new Date(year, month, 1).getDay();
+        const startEmptyCells = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+        const weekdays = ["V", "M", "T", "O", "T", "F", "L", "S"];
+        weekdays.forEach((day) => {
+          const headerCell = document.createElement("div");
+          headerCell.className = "text-[10px] font-medium text-zinc-400 py-1";
+          headerCell.textContent = day;
+          calendarContainer.appendChild(headerCell);
+        });
+
+        const firstDate = new Date(year, month, 1);
+        const firstWeekCell = document.createElement("div");
+        firstWeekCell.className = "font-mono-num text-[10px] text-zinc-400 flex items-center justify-center";
+        firstWeekCell.textContent = getWeekNumber(firstDate);
+        calendarContainer.appendChild(firstWeekCell);
+
+        for (let i = 0; i < startEmptyCells; i++) {
+          calendarContainer.appendChild(document.createElement("div"));
+        }
+
+        let workShifts = 0;
+        let workHours = 0;
+
+        for (let i = 1; i <= daysInMonth; i++) {
+          const cellDate = new Date(year, month, i);
+          if (i > 1 && cellDate.getDay() === 1) {
+            const weekCell = document.createElement("div");
+            weekCell.className = "font-mono-num text-[10px] text-zinc-400 flex items-center justify-center";
+            weekCell.textContent = getWeekNumber(cellDate);
+            calendarContainer.appendChild(weekCell);
+          }
+
+          const shiftCode = getShift(cellDate, teamOffset);
+          if (shiftCode !== "L") {
+            workShifts++;
+            workHours += shiftCode === "FH" || shiftCode === "NH" ? 12 : 8;
+          }
+
+          const isToday = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+
+          const cell = document.createElement("div");
+          cell.className = `py-1.5 rounded border flex flex-col items-center justify-center ${getMinimalStyle(shiftCode)} ${
+            isToday ? "ring-1 ring-zinc-900 dark:ring-zinc-100 font-semibold" : ""
+          }`;
+          cell.innerHTML = `
+            <span class="text-[9px] opacity-60">${i}</span>
+            <span class="font-mono-num text-[11px] font-medium">${shiftCode}</span>
+          `;
+          calendarContainer.appendChild(cell);
+        }
+
+        document.getElementById("team-month-stats").textContent = `${workShifts} pass · ${workHours} tim denna månad`;
+      }
+
+      document.getElementById("team-prev-month").addEventListener("click", () => {
+        if (selectedTeam !== "Alla lag") {
+          currentTeamMonth.setMonth(currentTeamMonth.getMonth() - 1);
+          renderTeamCalendar(selectedTeam, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
+        }
+      });
+
+      document.getElementById("team-next-month").addEventListener("click", () => {
+        if (selectedTeam !== "Alla lag") {
+          currentTeamMonth.setMonth(currentTeamMonth.getMonth() + 1);
+          renderTeamCalendar(selectedTeam, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
+        }
+      });
+
+      document.getElementById("team-month").addEventListener("change", (e) => {
+        if (selectedTeam !== "Alla lag" && e.target.value) {
+          const [y, m] = e.target.value.split("-");
+          currentTeamMonth = new Date(y, m - 1, 1);
+          renderTeamCalendar(selectedTeam, currentTeamMonth.getFullYear(), currentTeamMonth.getMonth());
+        }
+      });
+
+      function updateMatrixMonthInput() {
+        const year = currentMatrixMonth.getFullYear();
+        const month = String(currentMatrixMonth.getMonth() + 1).padStart(2, "0");
+        matrixMonthInput.value = `${year}-${month}`;
+      }
+
+      function renderMatrixView(year, month) {
+        const tableBody = document.getElementById("matrix-table-body");
+        tableBody.innerHTML = "";
+
+        const teams = ["A-lag", "B-lag", "C-lag", "D-lag", "E-lag"];
+        let currentWeek = -1;
+
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date();
+        const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+
+        for (let i = 1; i <= daysInMonth; i++) {
+          const date = new Date(year, month, i);
+
+          if (isCurrentMonth && checkHidePast.checked && date < startOfToday) {
+            continue;
+          }
+
+          const weekNum = getWeekNumber(date);
+          if (weekNum !== currentWeek) {
+            currentWeek = weekNum;
+            const separator = document.createElement("tr");
+            separator.className = "bg-zinc-50 dark:bg-zinc-900/90";
+            separator.innerHTML = `<td colspan="6" class="px-3 py-1 text-[10px] font-medium text-zinc-400 uppercase tracking-wider">Vecka ${weekNum}</td>`;
+            tableBody.appendChild(separator);
+          }
+
+          const isToday = date.getTime() === startOfToday.getTime();
+          const tr = document.createElement("tr");
+          if (isToday) {
+            tr.className = "bg-zinc-100/80 dark:bg-zinc-800/50 font-medium";
+          }
+
+          let dateStr = date.toLocaleDateString("sv-SE", {
+            weekday: "short",
+            day: "numeric",
+            month: "numeric",
+          });
+          if (isToday) dateStr += " · Idag";
+
+          let rowHtml = `<td class="px-3 py-2 whitespace-nowrap text-xs capitalize text-zinc-600 dark:text-zinc-300">${dateStr}</td>`;
+
+          teams.forEach((team) => {
+            const offset = window.shiftConfig.teamOffsets[team];
+            const shiftCode = getShift(date, offset);
+            rowHtml += `
+              <td class="px-1.5 py-1.5 whitespace-nowrap text-center">
+                <span class="inline-block w-7 py-0.5 rounded font-mono-num text-[11px] font-medium border ${getMinimalStyle(shiftCode)}">
+                  ${shiftCode}
+                </span>
+              </td>
+            `;
+          });
+
+          tr.innerHTML = rowHtml;
+          tableBody.appendChild(tr);
+        }
+      }
+
+      checkHidePast.addEventListener("change", () => {
+        renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
+      });
+
+      matrixMonthInput.addEventListener("change", () => {
+        if (matrixMonthInput.value) {
+          const [y, m] = matrixMonthInput.value.split("-");
+          currentMatrixMonth = new Date(y, m - 1, 1);
+          renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
+        }
+      });
+
+      document.getElementById("matrix-prev-month").addEventListener("click", () => {
+        currentMatrixMonth.setMonth(currentMatrixMonth.getMonth() - 1);
+        updateMatrixMonthInput();
+        renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
+      });
+
+      document.getElementById("matrix-next-month").addEventListener("click", () => {
+        currentMatrixMonth.setMonth(currentMatrixMonth.getMonth() + 1);
+        updateMatrixMonthInput();
+        renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
+      });
+
+      function updateSkiftschemaView() {
+        updateTeamPillsUI();
+        if (selectedTeam === "Alla lag") {
+          myTeamContainer.classList.add("hidden");
+          allTeamsContainer.classList.remove("hidden");
+          if (!matrixMonthInput.value) updateMatrixMonthInput();
+          renderMatrixView(currentMatrixMonth.getFullYear(), currentMatrixMonth.getMonth());
+        } else {
+          allTeamsContainer.classList.add("hidden");
+          myTeamContainer.classList.remove("hidden");
+          renderMyTeamView(selectedTeam);
+        }
+      }
+
+      // Initiering vid sidladdning
+      window.addEventListener("DOMContentLoaded", () => {
+        updateHeaderClock();
+        setInterval(updateHeaderClock, 10000);
+
+        const savedOml = localStorage.getItem("fors_last_oml");
+        if (savedOml) {
+          try {
+            const parsed = JSON.parse(savedOml);
+            startTimeInput.value = parsed.startTimeValue || "";
+            tonnageInput.value = parsed.tonnage || "";
+            speedInput.value = parsed.speed || "";
+            calculateEndTime();
+          } catch (_) {
+            setStartTimeNow();
+          }
+        } else {
+          setStartTimeNow();
+        }
+
+        const initialTab = localStorage.getItem("fors_active_tab") || "omlaggning";
+        switchTab(initialTab);
+        lucide.createIcons();
+      });
+    </script>
+  </body>
+</html>
